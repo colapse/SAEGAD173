@@ -1,0 +1,25 @@
+﻿  19T2-GAD173-Brief1-Taennler-1015901.cpp
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(202): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(203): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(304): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(321): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(357): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(440): warning C4305: '*=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\source\repos\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(455): warning C4305: '*=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+  19T2-GAD173-Brief1-Taennler-1015901.vcxproj -> C:\Users\lucat\source\repos\19T2-GAD173-Brief1-Taennler-1015901\x64\Debug\19T2-GAD173-Brief1-Taennler-1015901.exe
