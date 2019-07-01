@@ -1,0 +1,29 @@
+﻿  main.cpp
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(152): warning C4244: 'argument': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(176): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(185): warning C4018: '>=': signed/unsigned mismatch
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(192): warning C4018: '>=': signed/unsigned mismatch
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(397): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(398): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(399): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  19T2-GAD173-Brief2-Taennler-1015901.vcxproj -> C:\Users\lucat\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief2-Taennler-1015901\x64\Debug\19T2-GAD173-Brief2-Taennler-1015901.exe
