@@ -152,6 +152,37 @@ char grid[gridVerticalBricks][gridHorizontalBricks] = {
 		{0,0,0,0,0,2,0,0,0,0,0}
 };
 
+class Level {
+	int gridSizeX = 0;
+	int gridSizeY = 0;
+	int initialBallCount = 1;
+	std::vector<std::vector<char>> grid;
+
+public:
+	
+	Level(int gridSizeX, int gridSizeY, int initialBallCount){
+		this->initialBallCount = initialBallCount;
+		grid.resize(gridSizeY);
+		for (int i = 0; i < gridSizeY; i++) {
+			grid[i].resize(gridSizeX);
+		}
+	}
+
+	Level(std::vector<std::vector<char>> pGrid) : grid(pGrid) {}
+
+	char GetValueAtCoord(int x, int y) {
+		if (x >= gridSizeX || y >= gridSizeY)
+			return 0;
+
+		return grid[y][x];
+	}
+
+	int GetInitialBallCount() {
+		return initialBallCount;
+	}
+
+}
+
 
 
 //sf::RectangleShape * activeBricks[gridVerticalBricks][gridHorizontalBricks]; DEL
