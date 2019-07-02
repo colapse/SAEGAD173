@@ -23,7 +23,7 @@ void DrawGrid();
 void DrawButtons();
 void LoadTileTextures(int tileWidth, int tileHeight);
 
-std::string texturePath = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";
+std::string texturePath = "C:\\Users\\ltnnler\\Documents\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";//C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
 
 class TileType {
 public:
@@ -447,6 +447,7 @@ void WindowLifeCycle() {
 		renderWindow.clear();
 		renderWindow.draw(windowBg);
 		DrawGrid();
+		DrawButtons();
 
 		renderWindow.display();
 	}
@@ -471,10 +472,13 @@ void CreateTileButtons() {
 		for (int x = 0; x < activeLevel->gridSize.x; x++) {
 			Button* b = new Button();
 
-			sf::RectangleShape * rect = new sf::RectangleShape(sf::Vector2f(activeLevel->tileSize));
-			rect->setFillColor(sf::Color::Blue);
+			int outlineColorThickness = 2;
+			sf::RectangleShape * rect = new sf::RectangleShape(sf::Vector2f(activeLevel->tileSize.x- 2*outlineColorThickness, activeLevel->tileSize.y - 2*outlineColorThickness));
+			rect->setFillColor(sf::Color::Color(0,0,0,0));
+			rect->setOutlineThickness(outlineColorThickness);
+			rect->setOutlineColor(sf::Color::Black);
 			b->SetShape(rect);
-			b->SetPosition(x * activeLevel->tileSize.x, y * activeLevel->tileSize.y);
+			b->SetPosition(x * activeLevel->tileSize.x+ outlineColorThickness, y * activeLevel->tileSize.y+ outlineColorThickness);
 			auto clickFunction = [x,y]() {
 
 				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr)
