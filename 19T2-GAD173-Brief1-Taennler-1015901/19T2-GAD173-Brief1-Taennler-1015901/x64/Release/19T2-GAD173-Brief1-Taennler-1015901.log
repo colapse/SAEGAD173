@@ -1,0 +1,45 @@
+﻿  19T2-GAD173-Brief1-Taennler-1015901.cpp
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(67): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(74): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(653): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(654): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(655): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(920): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1213): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1214): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1390): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1563): warning C4305: '*=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1565): warning C4305: '*=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1580): warning C4305: '-=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1587): warning C4305: '+=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1600): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Generating code
+  51 of 1479 functions ( 3.4%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    3 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  19T2-GAD173-Brief1-Taennler-1015901.vcxproj -> C:\Users\lucat\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief1-Taennler-1015901\x64\Release\19T2-GAD173-Brief1-Taennler-1015901.exe
