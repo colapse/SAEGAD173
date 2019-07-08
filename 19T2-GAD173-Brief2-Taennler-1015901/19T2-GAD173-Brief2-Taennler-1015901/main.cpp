@@ -6,6 +6,15 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <functional>
+#include "TextInput.h"
+#include "Button.h"
+#include "TileType.h"
+#include "Tile.h"
+#include "Level.h"
+#include "View.h"
+#include <algorithm>
+#include <iterator>
+#include <filesystem>
 
 /*
 TILE TYPES
@@ -17,354 +26,47 @@ s = Player Spawn Position
 t = Player Terminal/Exit point
 
 */
-
+#pragma region Global Function Declarations
+void WindowLifeCycle();
+void InitMainMenuView();
 void CreateTileButtons();
 void DrawGrid();
 void DrawButtons();
 void LoadTileTextures(int tileWidth, int tileHeight);
-
-std::string texturePath = "C:\\Users\\ltnnler\\Documents\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";//C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
-
-class TileType {
-public:
-	const char tileId;
-	const std::string name;
-	const std::string spriteLoc;
-	TileType(char pTileId, std::string pName, std::string tileSprite) : tileId(pTileId), name(pName), spriteLoc(tileSprite){
-		
-	}
-
-	TileType() : tileId(' '), name(""), spriteLoc("") {
-
-	}
-	/*
-	std::string GetName() {
-		return name;
-	}
-
-	char GetTileId() {
-		return tileId;
-	}
-
-	std::string GetSpriteLoc() {
-		return spriteLoc;
-	}*/
-};
-
-std::map<char,TileType*> tileTypes{
-	{'0',new TileType('0', "Air", texturePath + "tileAir.png")},
-	{'c',new TileType('c', "Coin", texturePath+"tileCoin.png")},
-	{'e',new TileType('e', "Enemy Spawn", texturePath + "tileEnemySpawn.png")},
-	{'g',new TileType('g', "Ground", texturePath + "tileGround.png")},
-	{'s',new TileType('s', "Player Spawn", texturePath + "tilePlayerExit.png")},
-	{'t',new TileType('t', "Player Exit", texturePath + "tilePlayerSpawn.png")},
-	{'w',new TileType('w', "Water", texturePath + "tileWater.png")}
-};
-
-std::map<char, sf::Texture*> tileTypeTextures;
-
-class Tile {
-	TileType * tileType;
-	sf::Sprite sprite = sf::Sprite();
-public:
-	//sf::RectangleShape rect;
-	bool active;
-	sf::Vector2i size;
-	Tile(int width, int height, TileType * pTileType, bool pActive) : active(pActive), tileType(pTileType){
-		//rect.setSize(sf::Vector2f(width, height));
-		size = sf::Vector2i(width,height);
-		SetTileType(tileType);
-	}
-
-	Tile() {
-		active = true;
-		SetTileType(tileTypes['0']);
-	}
-
-	void SetPosition(float x, float y) {
-		sprite.setPosition(x, y);
-		//sf::Vector2i intPos(x, y);
-		//sprite.setTextureRect(sf::IntRect(intPos, size));
-	}
-
-	void SetPosition(sf::Vector2f pos) {
-		sprite.setPosition(pos);
-		//sf::Vector2i intPos(pos.x, pos.y);
-		//sprite.setTextureRect(sf::IntRect(intPos, size));
-	}
-
-	TileType * GetTileType() {
-		return tileType;
-	}
-
-	sf::Sprite GetSprite() {
-		return sprite;
-	}
-
-	void SetTileType(TileType * tileType) {
-		this->tileType = tileType;
-
-		if (this->tileType == nullptr) {
-			return;
-		}
-		/*
-		sf::Texture * texture = new sf::Texture();
-		if ( !texture->loadFromFile(this->tileType->spriteLoc, sf::IntRect(0, 0, size.x, size.y)))
-		{
-			std::cout << "Couldn't load tile sprite! Tile ID: " + std::to_string(tileType->tileId) + " . " + this->tileType->spriteLoc + " ." << std::endl;
-			if (sprite.getTexture()) {
-				delete sprite.getTexture();
-			}
-		}
-		else {
-			std::cout << "Loaded texture " + std::to_string(tileType->tileId) + " . " + this->tileType->spriteLoc + " ." << std::endl;
-			if (sprite.getTexture()) {
-				delete sprite.getTexture();
-			}
-			
-			sprite.setTexture(*texture);
-		}*/
-		if (tileTypeTextures[tileType->tileId] != nullptr)
-			sprite.setTexture(*tileTypeTextures[tileType->tileId]);
-		else {
-			sf::Texture t;
-			t.create(size.x, size.y);
-			sprite.setTexture(t);
-		}
-	}
-
-};
-
-class Level {
-
-	std::vector<std::vector<char>> charGrid;
-	std::vector<std::vector<Tile*>> tileGrid;
-
-
-	void UpdateTile(unsigned int x, unsigned int y) {
-		tileGrid[y][x]->SetTileType(tileTypes[charGrid[y][x]]);
-		tileGrid[y][x]->SetPosition(x*tileSize.x, y*tileSize.y);
-	}
-
-	void InitializeTileGrid() {
-		for (int y = 0; y < charGrid.size(); y++) {
-			for (int x = 0; x < charGrid[y].size(); x++) {
-				tileGrid[y][x] = new Tile(tileSize.x, tileSize.y, tileTypes['0'], true);
-				UpdateTile(x, y);
-			}
-		}
-	}
-public:
-	
-	const sf::Vector2i gridSize;
-	sf::Vector2f tileSize = sf::Vector2f(50,50);
-	sf::Vector2i playerSpawnPosition = sf::Vector2i(0, 0);
-
-	Level(unsigned int gridSizeX, unsigned int gridSizeY, float tileWidth, float tileHeight) : gridSize(sf::Vector2i(gridSizeX, gridSizeY)),
-		charGrid(gridSizeY, std::vector<char>(gridSizeX,'0')),
-		tileGrid(gridSizeY, std::vector<Tile*>(gridSizeX, nullptr))
-	{
-
-		tileSize.x = tileWidth;
-		tileSize.y = tileHeight;
-
-		InitializeTileGrid();
-	}
-
-	Level(std::vector<std::vector<char>> pGrid, float tileWidth, float tileHeight) : charGrid(pGrid),
-		tileGrid(std::size(pGrid), std::vector<Tile*>(std::size(pGrid[0]),nullptr)),
-		gridSize(sf::Vector2i(std::size(pGrid[0]), std::size(pGrid))) {
-		
-		tileSize.x = tileWidth;
-		tileSize.y = tileHeight;
-
-		InitializeTileGrid();
-	}
-
-	Tile* GetTileAtCoord(unsigned int x, unsigned int y) {
-		if (x >= gridSize.x || y >= gridSize.y)
-			return nullptr;
-		
-		return tileGrid[y][x];
-	}
-
-	void SetTileTypeAtCoord(unsigned int x, unsigned int y, TileType * pTileType) {
-		if (x >= gridSize.x || y >= gridSize.y)
-			return;
-		UpdateTile(x,y);
-		//tileGrid[y][x]->SetTileType(pTileType);
-	}
-	/*
-	char GetCharAtCoord(int x, int y) {
-		if (x >= gridSize.x || y >= gridSize.y)
-			return 0;
-
-		return charGrid[y][x];
-	}*/
-	/*
-	void SetTileTypeAtCoord(int x, int y, char tileType) {
-		if (x >= gridSize.x || y >= gridSize.y)
-			return;
-
-		charGrid[y][x] = tileType;
-	}*/
-};
-
-class Button {
-	bool isMouseOver = false;
-	bool isMousePressed = false;
-	bool isButtonDown = false;
-
-	std::vector<std::function<void()>> btnDownFuncs;
-	std::vector<std::function<void()>> btnPressedFuncs;
-	std::vector<std::function<void()>> btnReleasedFuncs;
-	std::vector<std::function<void()>> mouseEnterFuncs;
-	std::vector<std::function<void()>> mouseExitFuncs;
-
-	void SetButtonDown() {
-		if (isButtonDown)
-			return;
-
-		for (std::function<void()> func : btnDownFuncs) {
-			func();
-		}
-	}
-public:
-
-	sf::Shape * shape = nullptr;
-	sf::Sprite sprite;
-
-#pragma region Button Event Handling
-
-	void SetButtonPressed() {
-		if (!isButtonDown) {
-			SetButtonDown();
-			isButtonDown = true;
-		}
-
-		for (std::function<void()> func : btnPressedFuncs) {
-			func();
-		}
-	}
-
-	void SetButtonReleased() {
-		if (!isButtonDown)
-			return;
-
-		isButtonDown = false;
-
-		for (std::function<void()> func : btnReleasedFuncs) {
-			func();
-		}
-	}
-
-	void SetMouseEnter() {
-		if (isMouseOver)
-			return;
-
-		isMouseOver = true;
-
-		for (std::function<void()> func : mouseEnterFuncs) {
-			func();
-		}
-	}
-
-	void SetMouseExit() {
-		if (!isMouseOver)
-			return;
-
-		isMouseOver = false;
-
-		for (std::function<void()> func : mouseExitFuncs) {
-			func();
-		}
-	}
-
-	// Add Functions
-	void AddButtonDownFunc(std::function<void()> func) {
-		btnDownFuncs.push_back(func);
-	}
-
-	void AddButtonPressedFunc(std::function<void()> func) {
-		btnPressedFuncs.push_back(func);
-	}
-
-	void AddButtonReleasedFunc(std::function<void()> func) {
-		btnReleasedFuncs.push_back(func);
-	}
-
-	void AddMouseEnterFunc(std::function<void()> func) {
-		mouseEnterFuncs.push_back(func);
-	}
-
-	void AddMouseExitFunc(std::function<void()> func) {
-		mouseExitFuncs.push_back(func);
-	}
-	/*
-	// Remove Functions
-	void RemoveButtonDownFunc(std::function<void()> * func) {
-		for (int i = 0; i < btnDownFuncs.size; i++) {
-			if (&btnDownFuncs[i] == func) {
-				btnDownFuncs.erase(btnDownFuncs.begin()+i);
-				break;
-			}
-		}
-	}
-
-	void RemoveButtonPressedFunc(std::function<void()> * func) {
-		for (int i = 0; i < btnPressedFuncs.size; i++) {
-			if (&btnPressedFuncs[i] == func) {
-				btnPressedFuncs.erase(btnPressedFuncs.begin() + i);
-				break;
-			}
-		}
-	}
-
-	void RemoveButtonReleasedFunc(std::function<void()> * func) {
-		for (int i = 0; i < btnReleasedFuncs.size; i++) {
-			if (&btnReleasedFuncs[i] == func) {
-				btnReleasedFuncs.erase(btnReleasedFuncs.begin() + i);
-				break;
-			}
-		}
-	}
-
-	void RemoveMouseEnterFunc(std::function<void()> * func) {
-		for (int i = 0; i < mouseEnterFuncs.size; i++) {
-			if (&mouseEnterFuncs[i] == func) {
-				mouseEnterFuncs.erase(mouseEnterFuncs.begin() + i);
-				break;
-			}
-		}
-	}
-
-	void RemoveMouseExitFunc(std::function<void()> * func) {
-		for (int i = 0; i < mouseExitFuncs.size; i++) {
-			if (&mouseExitFuncs[i] == func) {
-				mouseExitFuncs.erase(mouseExitFuncs.begin() + i);
-				break;
-			}
-		}
-	}*/
+void InitVars();
+void DrawActiveView();
+void HanleViewEvents(sf::Event e);
+void LoadLevelsFromDirectory();
 #pragma endregion
 
-	
-	void SetShape(sf::Shape * shape) {
-		this->shape = shape;
-	}
-
-	void SetPosition(float x, float y) {
-		shape->setPosition(x,y);
-	}
-
-	void ScaleSize(float scaleX, float scaleY) {
-		shape->setScale(scaleX, scaleY);
-	}
-
-	sf::FloatRect GetGlobalBounds() {
-		return shape->getGlobalBounds();
-	}
+#pragma region Global Variables
+enum class ViewName
+{
+	MainMenu,
+	LevelEditor
 };
+
+std::map<ViewName, View*> views;
+
+sf::RenderWindow renderWindow;
+sf::Font generalFont;
+float windowWidth = 1000; // Width of the window
+float windowHeight = 600; // Height of the window
+
+std::string exeDir = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
+std::string fontName = "Radiant.ttf"; // Font retrieved from https://www.dafont.com/
+std::string levelFolder = "levels";
+std::string levelExt = ".lvl";
+
+ViewName activeView = ViewName::MainMenu;
+
+std::vector<std::string> levelsInFolder; //levels in level folder
+
+
+#pragma endregion
+
+
+std::string texturePath = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";//C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
 
 std::vector<Button*> buttons;
 
@@ -373,16 +75,334 @@ std::vector<std::vector<Button*>> buttonGrid;
 Level * activeLevel;
 //std::vector<std::vector<Tile>> currentGrid;
 
-void WindowLifeCycle();
-sf::RenderWindow renderWindow;
-
-int main()
-{
-	WindowLifeCycle();
-}
 
 sf::Vector2f mousePos;
 float deltaTime = 0;
+
+int main()
+{
+	TileType::tileTypes = {
+	{'0',new TileType('0', "Air", texturePath + "tileAir.png")},
+	{'c',new TileType('c', "Coin", texturePath + "tileCoin.png")},
+	{'e',new TileType('e', "Enemy Spawn", texturePath + "tileEnemySpawn.png")},
+	{'g',new TileType('g', "Ground", texturePath + "tileGround.png")},
+	{'s',new TileType('s', "Player Spawn", texturePath + "tilePlayerExit.png")},
+	{'t',new TileType('t', "Player Exit", texturePath + "tilePlayerSpawn.png")},
+	{'w',new TileType('w', "Water", texturePath + "tileWater.png")}
+	};
+
+	LoadLevelsFromDirectory();
+	InitVars();
+	InitMainMenuView();
+	LoadLevelsFromDirectory();
+	WindowLifeCycle();
+}
+
+// original from https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
+void LoadLevelsFromDirectory() {
+	levelsInFolder.clear();
+	for (const auto & entry : std::filesystem::directory_iterator(exeDir+levelFolder)) {
+		if (entry.is_regular_file() && entry.path().extension() == levelExt) {
+			levelsInFolder.push_back(entry.path().stem().u8string());
+		}
+	}
+}
+
+#pragma region Initialize
+
+void InitMainMenuView() {
+	View * mainMenuView = new View("Main Menu", renderWindow.getSize().x, renderWindow.getSize().y);
+	float yOffset = 10;
+
+	// Title
+	sf::Text * txtTitle = new sf::Text("Level Editor", generalFont, 30);
+	sf::Vector2f titlePos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width/2 - txtTitle->getGlobalBounds().width/2, yOffset);
+	txtTitle->setPosition(titlePos);
+	yOffset += txtTitle->getGlobalBounds().height + 30;
+	mainMenuView->AddText(txtTitle);
+
+	// Txt Create New Level
+	sf::Text * txtCreateNewLevel = new sf::Text("Create New Level", generalFont, 24);
+	sf::Vector2f txtCreateNewLevelPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtCreateNewLevel->getGlobalBounds().width / 2, yOffset);
+	txtCreateNewLevel->setPosition(txtCreateNewLevelPos);
+	yOffset += txtCreateNewLevel->getGlobalBounds().height + 10;
+	mainMenuView->AddText(txtCreateNewLevel);
+
+	// Txt level name
+	sf::Text * txtNewLevelName = new sf::Text("Level Name:", generalFont, 18);
+	sf::Vector2f txtNewLevelNamePos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtNewLevelName->getGlobalBounds().width - 10, yOffset);
+	txtNewLevelName->setPosition(txtNewLevelNamePos);
+	mainMenuView->AddText(txtNewLevelName);
+
+	// Txt Field new level name
+	TextInput * tiNewLevelName = new TextInput();
+	tiNewLevelName->SetFont(generalFont);
+	tiNewLevelName->SetSize(200 , 20);
+	tiNewLevelName->allowOnlyAlphaNumerical = true;
+	tiNewLevelName->maxLength = 30;
+	sf::Vector2f tiNewLevelNamePos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 + 10, yOffset);
+	tiNewLevelName->SetPosition(tiNewLevelNamePos);
+	tiNewLevelName->SetTextColor(sf::Color::Black);
+	//// Create mouse enter lambda func which changes the Outline color
+	auto FnMOver_TINewLevelName = [tiNewLevelName]() {
+		if(!tiNewLevelName->HasFocus())
+			tiNewLevelName->SetBorder(2,sf::Color::Black);
+	};
+	tiNewLevelName->AddOnMouseEnterFunc(FnMOver_TINewLevelName); // Assign func to input
+	//// Create mouse exit lambda func which changes the Outline color
+	auto FnMExit_TINewLevelName = [tiNewLevelName]() {
+		if (!tiNewLevelName->HasFocus())
+			tiNewLevelName->SetBorder(2, sf::Color::Color(99,99,99,255));
+	};
+	tiNewLevelName->AddOnMouseExitFunc(FnMExit_TINewLevelName); // Assign func to input
+	//// Create focus lambda func which changes the Outline color
+	auto FnMFocus_TINewLevelName = [tiNewLevelName]() {
+		tiNewLevelName->SetBorder(2, sf::Color::Cyan);
+	};
+	tiNewLevelName->AddOnFocusFunc(FnMFocus_TINewLevelName); // Assign func to input
+	//// Create focus exit lambda func which changes the Outline color
+	auto FnMFocusExit_TINewLevelName = [tiNewLevelName]() {
+		tiNewLevelName->SetBorder(2, sf::Color::Color(99,99,99,255));
+	};
+	tiNewLevelName->AddOnFocusExitFunc(FnMFocusExit_TINewLevelName); // Assign func to input
+	
+	mainMenuView->AddTextInput(tiNewLevelName);
+	yOffset += txtNewLevelName->getGlobalBounds().height + 10;
+
+	// Txt level width
+	sf::Text * txtNewLevelWidth = new sf::Text("Width:", generalFont, 18);
+	sf::Vector2f txtNewLevelWidthPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtNewLevelName->getGlobalBounds().width - 10, yOffset);
+	txtNewLevelWidth->setPosition(txtNewLevelWidthPos);
+	mainMenuView->AddText(txtNewLevelWidth);
+
+	// Txt Field new level width
+	TextInput * tiNewLevelWidth = new TextInput();
+	tiNewLevelWidth->SetFont(generalFont);
+	tiNewLevelWidth->SetSize(40, 20);
+	tiNewLevelWidth->allowOnlyNumerical = true;
+	tiNewLevelWidth->maxLength = 5;
+	sf::Vector2f tiNewLevelWidthPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 + 10, yOffset);
+	tiNewLevelWidth->SetPosition(tiNewLevelWidthPos);
+	tiNewLevelWidth->SetTextColor(sf::Color::Black);
+	//// Create mouse enter lambda func which changes the Outline color
+	auto FnMOver_TINewLevelWidth = [tiNewLevelWidth]() {
+		if (!tiNewLevelWidth->HasFocus())
+			tiNewLevelWidth->SetBorder(2, sf::Color::Black);
+	};
+	tiNewLevelWidth->AddOnMouseEnterFunc(FnMOver_TINewLevelWidth); // Assign func to input
+	//// Create mouse exit lambda func which changes the Outline color
+	auto FnMExit_TINewLevelWidth = [tiNewLevelWidth]() {
+		if (!tiNewLevelWidth->HasFocus())
+			tiNewLevelWidth->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiNewLevelWidth->AddOnMouseExitFunc(FnMExit_TINewLevelWidth); // Assign func to input
+	//// Create focus lambda func which changes the Outline color
+	auto FnMFocus_TINewLevelWidth = [tiNewLevelWidth]() {
+		tiNewLevelWidth->SetBorder(2, sf::Color::Cyan);
+	};
+	tiNewLevelWidth->AddOnFocusFunc(FnMFocus_TINewLevelWidth); // Assign func to input
+	//// Create focus exit lambda func which changes the Outline color
+	auto FnMFocusExit_TINewLevelWidth = [tiNewLevelWidth]() {
+		tiNewLevelWidth->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiNewLevelWidth->AddOnFocusExitFunc(FnMFocusExit_TINewLevelWidth); // Assign func to input
+
+	mainMenuView->AddTextInput(tiNewLevelWidth);
+	yOffset += txtNewLevelWidth->getGlobalBounds().height + 10;
+
+	// Txt level height
+	sf::Text * txtNewLevelHeight = new sf::Text("Height:", generalFont, 18);
+	sf::Vector2f txtNewLevelHeightPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtNewLevelName->getGlobalBounds().width - 10, yOffset);
+	txtNewLevelHeight->setPosition(txtNewLevelHeightPos);
+	mainMenuView->AddText(txtNewLevelHeight);
+
+	// Txt Field new level height
+	TextInput * tiNewLevelHeight = new TextInput();
+	tiNewLevelHeight->SetFont(generalFont);
+	tiNewLevelHeight->SetSize(40, 20);
+	tiNewLevelHeight->allowOnlyNumerical = true;
+	tiNewLevelHeight->maxLength = 5;
+	sf::Vector2f tiNewLevelHeightPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 + 10, yOffset);
+	tiNewLevelHeight->SetPosition(tiNewLevelHeightPos);
+	tiNewLevelHeight->SetTextColor(sf::Color::Black);
+	//// Create mouse enter lambda func which changes the Outline color
+	auto FnMOver_TINewLevelHeight = [tiNewLevelHeight]() {
+		if (!tiNewLevelHeight->HasFocus())
+			tiNewLevelHeight->SetBorder(2, sf::Color::Black);
+	};
+	tiNewLevelHeight->AddOnMouseEnterFunc(FnMOver_TINewLevelHeight); // Assign func to input
+	//// Create mouse exit lambda func which changes the Outline color
+	auto FnMExit_TINewLevelHeight = [tiNewLevelHeight]() {
+		if (!tiNewLevelHeight->HasFocus())
+			tiNewLevelHeight->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiNewLevelHeight->AddOnMouseExitFunc(FnMExit_TINewLevelHeight); // Assign func to input
+	//// Create focus lambda func which changes the Outline color
+	auto FnMFocus_TINewLevelHeight = [tiNewLevelHeight]() {
+		tiNewLevelHeight->SetBorder(2, sf::Color::Cyan);
+	};
+	tiNewLevelHeight->AddOnFocusFunc(FnMFocus_TINewLevelHeight); // Assign func to input
+	//// Create focus exit lambda func which changes the Outline color
+	auto FnMFocusExit_TINewLevelHeight = [tiNewLevelHeight]() {
+		tiNewLevelHeight->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiNewLevelHeight->AddOnFocusExitFunc(FnMFocusExit_TINewLevelHeight); // Assign func to input
+
+	mainMenuView->AddTextInput(tiNewLevelHeight);
+	yOffset += txtNewLevelHeight->getGlobalBounds().height + 20;
+
+	// Button Create New Level
+	Button * btnCreateNewLevel = new Button();
+	sf::RectangleShape * rectBtnCreateNewLevel = new sf::RectangleShape(sf::Vector2f(200, 40));
+	btnCreateNewLevel->SetShape(rectBtnCreateNewLevel);
+	btnCreateNewLevel->SetFillColor(sf::Color::Green);
+	btnCreateNewLevel->SetText("Create Level", sf::Color::Black);
+	btnCreateNewLevel->SetFont(generalFont);
+	btnCreateNewLevel->SetOutline(2,sf::Color::Color(0,143,43,255));
+	btnCreateNewLevel->SetPosition(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - btnCreateNewLevel->GetGlobalBounds().width/2,yOffset);
+	
+	//// Create mouse enter lambda func which changes the BG col
+	auto FnMOver_BTNCreateNewLevel = [btnCreateNewLevel]() {
+		btnCreateNewLevel->SetFillColor(sf::Color::Color(0, 143, 43, 255));
+	};
+	btnCreateNewLevel->AddMouseEnterFunc(FnMOver_BTNCreateNewLevel); // Assign func to input
+	//// Create mouse exit lambda func which changes the BG col
+	auto FnMExit_BTNCreateNewLevel = [btnCreateNewLevel]() {
+		btnCreateNewLevel->SetFillColor(sf::Color::Green);
+	};
+	btnCreateNewLevel->AddMouseExitFunc(FnMExit_BTNCreateNewLevel); // Assign func to input
+
+	yOffset += btnCreateNewLevel->GetGlobalBounds().height + 40;
+	mainMenuView->AddButton(btnCreateNewLevel);
+
+
+	// Txt Open Existing Level
+	sf::Text * txtOpenExistingLevel = new sf::Text("Open Existing Level", generalFont, 24);
+	sf::Vector2f txtOpenExistingLevelPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtCreateNewLevel->getGlobalBounds().width / 2, yOffset);
+	txtOpenExistingLevel->setPosition(txtOpenExistingLevelPos);
+	yOffset += txtOpenExistingLevel->getGlobalBounds().height + 10;
+	mainMenuView->AddText(txtOpenExistingLevel);
+
+	// Txt Path
+	sf::Text * txtPath = new sf::Text("Path: ", generalFont, 18);
+	sf::Vector2f txtPathPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtCreateNewLevel->getGlobalBounds().width / 2, yOffset);
+	txtPath->setPosition(txtPathPos);
+	mainMenuView->AddText(txtPath);
+
+	// Txt Field Path
+	TextInput * tiPath = new TextInput();
+	tiPath->SetFont(generalFont);
+	tiPath->SetSize(200, 20);
+	sf::Vector2f tiPathPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 + 10, yOffset);
+	tiPath->SetPosition(tiPathPos);
+	tiPath->SetTextColor(sf::Color::Black);
+	//// Create mouse enter lambda func which changes the Outline color
+	auto FnMOver_TIPath = [tiPath]() {
+		if (!tiPath->HasFocus())
+			tiPath->SetBorder(2, sf::Color::Black);
+	};
+	tiPath->AddOnMouseEnterFunc(FnMOver_TIPath); // Assign func to input
+	//// Create mouse exit lambda func which changes the Outline color
+	auto FnMExit_TIPath = [tiPath]() {
+		if (!tiPath->HasFocus())
+			tiPath->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiPath->AddOnMouseExitFunc(FnMExit_TIPath); // Assign func to input
+	//// Create focus lambda func which changes the Outline color
+	auto FnMFocus_TIPath = [tiPath]() {
+		tiPath->SetBorder(2, sf::Color::Cyan);
+	};
+	tiPath->AddOnFocusFunc(FnMFocus_TIPath); // Assign func to input
+	//// Create focus exit lambda func which changes the Outline color
+	auto FnMFocusExit_TIPath = [tiPath]() {
+		tiPath->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiPath->AddOnFocusExitFunc(FnMFocusExit_TIPath); // Assign func to input
+
+	mainMenuView->AddTextInput(tiPath);
+
+	// Button Open Level
+	Button * btnOpenLevelByPath = new Button();
+	sf::RectangleShape * rectBtnOpenLevelByPath = new sf::RectangleShape(sf::Vector2f(50, 20));
+	btnOpenLevelByPath->SetShape(rectBtnOpenLevelByPath);
+	btnOpenLevelByPath->SetFillColor(sf::Color::Green);
+	btnOpenLevelByPath->SetText("Open", sf::Color::Black);
+	btnOpenLevelByPath->SetFont(generalFont);
+	btnOpenLevelByPath->SetOutline(2, sf::Color::Color(0, 143, 43, 255));
+	btnOpenLevelByPath->SetPosition(tiPath->GetBoundaries().left + tiPath->GetBoundaries().width + 10, yOffset);
+	//// Create mouse enter lambda func which changes the BG col
+	auto FnMOver_BTNOpenLevelByPath = [btnOpenLevelByPath]() {
+		btnOpenLevelByPath->SetFillColor(sf::Color::Color(0, 143, 43, 255));
+	};
+	btnOpenLevelByPath->AddMouseEnterFunc(FnMOver_BTNOpenLevelByPath); // Assign func to input
+	//// Create mouse exit lambda func which changes the BG col
+	auto FnMExit_BTNOpenLevelByPath = [btnOpenLevelByPath]() {
+		btnOpenLevelByPath->SetFillColor(sf::Color::Green);
+	};
+	btnOpenLevelByPath->AddMouseExitFunc(FnMExit_BTNOpenLevelByPath); // Assign func to input
+
+	mainMenuView->AddButton(btnOpenLevelByPath);
+
+	yOffset += btnOpenLevelByPath->GetGlobalBounds().height + 20;
+
+	// Txt Level Folder
+	sf::Text * txtFastAccess = new sf::Text("Fast Access (TODO): ", generalFont, 18);
+	sf::Vector2f txtFastAccessPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtFastAccess->getGlobalBounds().width / 2, yOffset);
+	txtFastAccess->setPosition(txtFastAccessPos);
+	mainMenuView->AddText(txtFastAccess);
+	yOffset += txtFastAccess->getGlobalBounds().height + 20;
+
+
+	for (int i = 0; i < levelsInFolder.size(); i++) {
+		float xPos = mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width/2 - 125 + (i % 5)*60;
+		// Button Open Level
+		Button * btnLevel = new Button();
+		sf::RectangleShape * rectBtnLevel = new sf::RectangleShape(sf::Vector2f(50, 50));
+		btnLevel->SetShape(rectBtnLevel);
+		btnLevel->SetFillColor(sf::Color::Green);
+		btnLevel->SetText(levelsInFolder[i], sf::Color::Black);
+		btnLevel->SetFont(generalFont);
+		btnLevel->SetOutline(2, sf::Color::Color(0, 143, 43, 255));
+		btnLevel->SetPosition(xPos, yOffset);
+		//// Create mouse enter lambda func which changes the BG col
+		auto FnMOver_BTNLevel = [btnLevel]() {
+			btnLevel->SetFillColor(sf::Color::Color(0, 143, 43, 255));
+		};
+		btnLevel->AddMouseEnterFunc(FnMOver_BTNLevel); // Assign func to input
+		//// Create mouse exit lambda func which changes the BG col
+		auto FnMExit_BTNLevel = [btnLevel]() {
+			btnLevel->SetFillColor(sf::Color::Green);
+		};
+		btnLevel->AddMouseExitFunc(FnMExit_BTNLevel); // Assign func to input
+		//// Create mouse exit lambda func which changes the BG col
+		std::string filename = levelsInFolder[i];
+		auto FnMRelease_BTNLevel = [filename]() {
+			// TODO Load Level
+			std::cout << "[TODO] Load Level "+ filename +"!" << std::endl;
+		};
+		btnLevel->AddButtonReleasedFunc(FnMRelease_BTNLevel); // Assign func to input
+
+		mainMenuView->AddButton(btnLevel);
+		if((i+1) % 5 == 0)
+			yOffset += btnLevel->GetGlobalBounds().height + 10;
+	}
+
+	views.insert({ ViewName::MainMenu, mainMenuView });
+}
+
+void InitVars() {
+	renderWindow.create(sf::VideoMode(windowWidth, windowHeight), "Level Editor - GAD173 - Brief 2"); // Initialize the window
+
+	// Try to load the main font
+	if (!generalFont.loadFromFile(exeDir + fontName))
+	{
+		std::cout << "Couldn't load font!" << std::endl;
+	}
+}
+
+#pragma endregion
+
+
 void WindowLifeCycle() {
 	
 
@@ -394,17 +414,18 @@ void WindowLifeCycle() {
 	activeLevel = new Level(5, 5, 50, 50);
 	CreateTileButtons();
 	
-	int windowWidth = activeLevel->gridSize.x * activeLevel->tileSize.x;
-	int windowHeight = activeLevel->gridSize.y * activeLevel->tileSize.y;
+	//int windowWidth = activeLevel->gridSize.x * activeLevel->tileSize.x;
+	//int windowHeight = activeLevel->gridSize.y * activeLevel->tileSize.y;
 	sf::RectangleShape windowBg(sf::Vector2f(windowWidth, windowHeight));
-	windowBg.setFillColor(sf::Color::Color(153,217,234,255));
-	renderWindow.create(sf::VideoMode(windowWidth, windowHeight), "Level Editor - GAD173 - Brief 2");
+	windowBg.setFillColor(sf::Color::Color(33,33,33,255));
+	//renderWindow.create(sf::VideoMode(windowWidth, windowHeight), "Level Editor - GAD173 - Brief 2");
 	while (renderWindow.isOpen())
 	{
 		deltaTime = Clock.restart().asSeconds();
 		sf::Event event;
 		while (renderWindow.pollEvent(event))
 		{
+			HanleViewEvents(event);
 			switch (event.type) {
 			case sf::Event::Closed: {
 				renderWindow.close();
@@ -443,25 +464,114 @@ void WindowLifeCycle() {
 			}
 
 		}
-
 		renderWindow.clear();
 		renderWindow.draw(windowBg);
-		DrawGrid();
-		DrawButtons();
+
+
+		//DrawGrid();
+		//DrawButtons();
+
+		DrawActiveView();
 
 		renderWindow.display();
 	}
 }
 
+void DrawActiveView() {
+	if (views[activeView] == nullptr)
+		return;
+
+	// Draw Buttons
+	for (Button * ele : views[activeView]->GetButtons()) {
+		if (ele->isActive) {
+			renderWindow.draw(*ele->GetShapeObject());
+			renderWindow.draw(*ele->GetTextObject());
+		}
+	}
+
+	// Draw Text Inputs
+	for (TextInput * ele : views[activeView]->GetTextInputs()) {
+		renderWindow.draw(*ele->GetRectComponent());
+		renderWindow.draw(*ele->GetTextComponent());
+	}
+
+	// Draw Shapes
+	for (sf::Shape * ele : views[activeView]->GetShapes()) {
+		renderWindow.draw(*ele);
+	}
+
+	// Draw Texts
+	for (sf::Text * ele : views[activeView]->GetTexts()) {
+		renderWindow.draw(*ele);
+	}
+
+}
+
+void HanleViewEvents(sf::Event e) {
+	if (views[activeView] == nullptr)
+		return;
+
+	// Buttons
+	for (Button * b : views[activeView]->GetButtons()) {
+		switch (e.type) {
+		case sf::Event::MouseMoved:
+			if (b->isActive && b->GetGlobalBounds().contains(mousePos)) {
+				b->SetMouseEnter();
+			}
+			else if(b->isActive) {
+				b->SetMouseExit();
+			}
+			break;
+		case sf::Event::MouseButtonPressed:
+			if (b->isActive && b->GetGlobalBounds().contains(mousePos)) {
+				b->SetButtonPressed();
+			}
+			break;
+		case sf::Event::MouseButtonReleased:
+			if (b->isActive) {
+				b->SetButtonReleased();
+			}
+			break;
+		}
+	}
+
+	// TextInput
+	for (TextInput * ele : views[activeView]->GetTextInputs()) {
+		switch (e.type) {
+		case sf::Event::MouseMoved:
+			if (ele->GetBoundaries().contains(mousePos)) {
+				ele->_OnMouseEnter();
+			}
+			else{
+				ele->_OnMouseExit();
+			}
+			break;
+		case sf::Event::MouseButtonReleased:
+			if (ele->GetBoundaries().contains(mousePos)) {
+				ele->_OnFocus();
+			}
+			else {
+				ele->_OnFocusExit();
+			}
+			break;
+		case sf::Event::TextEntered:
+			if(e.text.unicode < 128 && ele->HasFocus())
+				
+				ele->_OnTextInput(static_cast<char>(e.text.unicode));
+			break;
+		}
+	}
+}
+
 void LoadTileTextures(int tileWidth, int tileHeight) {
 	//tileTypeTextures = std::map<char, sf::Texture>(tileTypes.size());
-	for (auto itr = tileTypes.begin(); itr != tileTypes.end(); ++itr) {
+	for (auto itr = TileType::tileTypes.begin(); itr != TileType::tileTypes.end(); ++itr) {
 		sf::Texture * texture = new sf::Texture();
 		if (!texture->loadFromFile(itr->second->spriteLoc, sf::IntRect(0, 0, tileWidth, tileHeight)))
 		{
 		}
 		else {
-			tileTypeTextures.insert({ itr->first,texture });
+			TileType::tileTypeTextures.insert({ itr->first,texture });
 		}
 	}
 }
@@ -484,13 +594,13 @@ void CreateTileButtons() {
 				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr)
 					return;
 
-				std::map<char, TileType*>::iterator it = tileTypes.find(activeLevel->GetTileAtCoord(x, y)->GetTileType()->tileId);
+				std::map<char, TileType*>::iterator it = TileType::tileTypes.find(activeLevel->GetTileAtCoord(x, y)->GetTileType()->tileId);
 				it++;
-				if (it != tileTypes.end()) {
+				if (it != TileType::tileTypes.end()) {
 					activeLevel->GetTileAtCoord(x, y)->SetTileType(it->second);
 				}
 				else {
-					activeLevel->GetTileAtCoord(x, y)->SetTileType(tileTypes['0']);
+					activeLevel->GetTileAtCoord(x, y)->SetTileType(TileType::tileTypes['0']);
 				}
 			};
 			b->AddButtonDownFunc(clickFunction);
@@ -522,8 +632,8 @@ void DrawGrid() {
 
 void DrawButtons() {
 	for (Button* b : buttons) {
-		if(b->shape != nullptr)
-			renderWindow.draw(*b->shape);
+		if(b->GetShapeObject() != nullptr)
+			renderWindow.draw(*b->GetShapeObject());
 	}
 }
 

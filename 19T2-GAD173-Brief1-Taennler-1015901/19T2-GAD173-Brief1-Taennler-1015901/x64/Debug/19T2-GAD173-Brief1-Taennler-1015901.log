@@ -1,26 +1,40 @@
-﻿  pch.cpp
-  19T2-GAD173-Brief1-Taennler-1015901.cpp
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(202): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+﻿  19T2-GAD173-Brief1-Taennler-1015901.cpp
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(67): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(74): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(653): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(654): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(655): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(945): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1238): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(203): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1239): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(304): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(321): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(357): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(440): warning C4305: '*=': truncation from 'double' to 'T'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1388): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1561): warning C4305: '*=': truncation from 'double' to 'T'
           with
           [
               T=float
           ]
-z:\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(455): warning C4305: '*=': truncation from 'double' to 'T'
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1563): warning C4305: '*=': truncation from 'double' to 'T'
           with
           [
               T=float
           ]
-  19T2-GAD173-Brief1-Taennler-1015901.vcxproj -> Z:\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief1-Taennler-1015901\x64\Debug\19T2-GAD173-Brief1-Taennler-1015901.exe
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1578): warning C4305: '-=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1585): warning C4305: '+=': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901\19t2-gad173-brief1-taennler-1015901.cpp(1598): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  19T2-GAD173-Brief1-Taennler-1015901.vcxproj -> C:\Users\lucat\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief1-Taennler-1015901\x64\Debug\19T2-GAD173-Brief1-Taennler-1015901.exe
