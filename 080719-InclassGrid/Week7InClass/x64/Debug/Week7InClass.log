@@ -1,0 +1,3 @@
+﻿  Week7InClass.cpp
+c:\users\ltnnler\source\repos\week7inclass\week7inclass\week7inclass.cpp(44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Week7InClass.vcxproj -> C:\Users\ltnnler\source\repos\Week7InClass\x64\Debug\Week7InClass.exe
