@@ -1,3 +1,4 @@
 ﻿  Week7InClass.cpp
-c:\users\ltnnler\source\repos\week7inclass\week7inclass\week7inclass.cpp(44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  Week7InClass.vcxproj -> C:\Users\ltnnler\source\repos\Week7InClass\x64\Debug\Week7InClass.exe
+z:\documents\gitlocal\saegad173\080719-inclassgrid\week7inclass\week7inclass.cpp(78): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+z:\documents\gitlocal\saegad173\080719-inclassgrid\week7inclass\week7inclass.cpp(263): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Week7InClass.vcxproj -> Z:\Documents\gitlocal\SAEGAD173\080719-InclassGrid\x64\Debug\Week7InClass.exe
