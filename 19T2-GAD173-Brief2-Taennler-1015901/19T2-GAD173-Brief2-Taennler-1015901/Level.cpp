@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Level.h"
 
-const float Level::defaultTileSize = 50;
+const float Level::defaultTileSize = 32;
 
 Level::Level()
 {

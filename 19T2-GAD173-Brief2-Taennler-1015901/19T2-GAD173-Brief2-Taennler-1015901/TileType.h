@@ -24,8 +24,10 @@ public:
 	const char tileId;
 	const std::string name;
 	const std::string spriteLoc;
+	bool allowGameObjects = true; // Bad name.
 
 	TileType(char pTileId, std::string pName, std::string tileSprite);
+	TileType(char pTileId, std::string pName, std::string tileSprite, bool pAllowGameObjects);
 	TileType();
 	~TileType();
 };

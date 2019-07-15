@@ -8,6 +8,8 @@
 #include <functional>
 #include "TextInput.h"
 #include "Button.h"
+#include "GameObject.h"
+#include "GameObjectType.h"
 #include "TileType.h"
 #include "Tile.h"
 #include "Level.h"
@@ -64,12 +66,12 @@ sf::Font generalFont;
 float windowWidth = 1000; // Width of the window
 float windowHeight = 600; // Height of the window
 
-std::string exeDir = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
+std::string exeDir = "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\";//"C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
 std::string fontName = "Radiant.ttf"; // Font retrieved from https://www.dafont.com/
 std::string levelFolder = "levels";
 std::string levelExt = ".lvl";
 
-std::string texturePath = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";//C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
+std::string texturePath = "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\textures\\";//"C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\"; //C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
 
 std::vector<ViewName> activeViews;
 
@@ -92,17 +94,17 @@ bool middleMouseButtonPressed = false;
 int main()
 {
 	TileType::tileTypes = {
-	{'0',new TileType('0', "Air", texturePath + "tileAir.png")},
-	{'c',new TileType('c', "Coin", texturePath + "tileCoin.png")},
-	{'e',new TileType('e', "Enemy Spawn", texturePath + "tileEnemySpawn.png")},
-	{'g',new TileType('g', "Ground", texturePath + "tileGround.png")},
-	{'s',new TileType('s', "Player Spawn", texturePath + "tilePlayerExit.png")},
-	{'t',new TileType('t', "Player Exit", texturePath + "tilePlayerSpawn.png")},
-	{'w',new TileType('w', "Water", texturePath + "tileWater.png")}
+	{'0',new TileType('0', "Air", texturePath + "BlockSky.png", true, true)},
+	{'1',new TileType('1', "Ground", texturePath + "BlockPlatform.png", true, false)},
+	{'2',new TileType('2', "Lava", texturePath + "LavaAnimated.gif", true, false)},
+	{'c',new TileType('c', "Coin", texturePath + "CoinAnimated.gif", false, true)},
+	{'e',new TileType('e', "Enemy Spawn", texturePath + "EnemyAlive.png", false, true)},
+	{'s',new TileType('s', "Player Spawn", texturePath + "Door.png", false, false)},
+	{'t',new TileType('t', "Player Exit", texturePath + "Player.png")}
 	};
 
 	LoadLevelsFromDirectory();
-	LoadTileTextures(50, 50);
+	LoadTileTextures(32, 32);
 	InitVars();
 	InitMainMenuView();
 	InitLevelEditorView();
@@ -206,7 +208,7 @@ Level* LoadLevelFromFile(std::string file) {
 bool SaveLevel(Level * level) {
 	std::string filename = level->existingFile;
 	bool createdNewFile = false;
-
+	
 	if (filename.length() == 0 || !std::filesystem::exists(filename)) {
 		if (level->levelName.length() > 0) {
 			filename = level->levelName;

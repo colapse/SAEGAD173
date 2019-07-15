@@ -1,10 +1,29 @@
-﻿  main.cpp
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(515): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+﻿  pch.cpp
+  Button.cpp
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\button.cpp(54): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\button.cpp(61): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+  Level.cpp
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.cpp(36): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
           with
           [
               T=int
           ]
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(975): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.cpp(47): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.cpp(75): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.cpp(82): warning C4018: '>=': signed/unsigned mismatch
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.cpp(89): warning C4018: '>=': signed/unsigned mismatch
+  LevelEditorView.cpp
+  main.cpp
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(515): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(975): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=float
@@ -13,4 +32,11 @@ c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\
           [
               T=int
           ]
-  19T2-GAD173-Brief2-Taennler-1015901.vcxproj -> C:\Users\lucat\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief2-Taennler-1015901\x64\Debug\19T2-GAD173-Brief2-Taennler-1015901.exe
+  TextInput.cpp
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\textinput.cpp(126): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+z:\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\textinput.cpp(133): warning C4244: '*=': conversion from 'float' to 'int', possible loss of data
+  Tile.cpp
+  TileType.cpp
+  View.cpp
+  Generating Code...
+  19T2-GAD173-Brief2-Taennler-1015901.vcxproj -> Z:\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief2-Taennler-1015901\x64\Debug\19T2-GAD173-Brief2-Taennler-1015901.exe
