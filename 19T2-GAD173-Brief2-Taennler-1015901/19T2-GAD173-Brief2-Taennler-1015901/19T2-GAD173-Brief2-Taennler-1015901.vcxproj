@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="LevelEditorView.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TextInput.h" />
     <ClInclude Include="Tile.h" />
@@ -174,6 +175,7 @@
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Level.cpp" />
+    <ClCompile Include="LevelEditorView.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

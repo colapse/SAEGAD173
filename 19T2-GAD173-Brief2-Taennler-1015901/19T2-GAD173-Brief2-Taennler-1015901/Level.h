@@ -1,9 +1,9 @@
 #pragma once
-#ifndef SFML/Graphics.hpp
+#ifndef SFML_GRAPHICS_HPP
 #include <SFML/Graphics.hpp>
 #endif // !SFML/Graphics.hpp
-#ifndef Tile.h
-#include "Tile.h";
+#ifndef Tile
+#include "Tile.h"
 #endif // !Tile.h
 
 
@@ -17,14 +17,18 @@ class Level {
 
 	void InitializeTileGrid();
 public:
-
+	static const float defaultTileSize;
 	const sf::Vector2i gridSize;
-	sf::Vector2f tileSize;
+	float tileSize;
 	sf::Vector2i playerSpawnPosition;
+	std::string levelName;
+	std::string existingFile;
 
-	Level(unsigned int gridSizeX, unsigned int gridSizeY, float tileWidth, float tileHeight);
+	Level(unsigned int gridSizeX, unsigned int gridSizeY, float pTileSize);
+	Level(unsigned int gridSizeX, unsigned int gridSizeY, float pTileSize, std::string pLevelName);
 
-	Level(std::vector<std::vector<char>> pGrid, float tileWidth, float tileHeight);
+	Level(std::vector<std::vector<char>> pGrid, float pTileSize);
+	Level(std::vector<std::vector<char>> pGrid, float pTileSize, std::string pLevelName);
 
 
 	~Level();

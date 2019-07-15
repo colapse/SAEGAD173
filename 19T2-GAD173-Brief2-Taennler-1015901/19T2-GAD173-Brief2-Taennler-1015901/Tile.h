@@ -1,14 +1,14 @@
 #pragma once
-#ifndef SFML/Graphics.hpp
+#ifndef SFML_GRAPHICS_HPP
 #include <SFML/Graphics.hpp>
 #endif // !SFML/Graphics.hpp
-#ifndef TileType.h
+#ifndef TileType
 #include "TileType.h"
 #endif // !TileType.h
 
 class Tile {
 	TileType * tileType;
-	sf::Sprite sprite = sf::Sprite();
+	sf::Sprite * sprite = new sf::Sprite();
 public:
 	//sf::RectangleShape rect;
 	bool active;
@@ -25,7 +25,7 @@ public:
 
 	TileType * GetTileType();
 
-	sf::Sprite GetSprite();
+	sf::Sprite * GetSprite();
 
 	void SetTileType(TileType * tileType);
 

@@ -5,10 +5,10 @@
 #ifndef map
 #include <map>
 #endif // !map
-#ifndef SFML/Graphics.hpp
+#ifndef SFML_GRAPHICS_HPP
 #include <SFML/Graphics.hpp>
 #endif // !SFML/Graphics.hpp
-#ifndef TileType.h
+#ifndef TileType
 #include "TileType.h"
 #endif // !TileType.h
 
@@ -17,6 +17,9 @@ class TileType {
 public:
 	static std::map<char, TileType*> tileTypes;
 	static std::map<char, sf::Texture*> tileTypeTextures;
+	static const char defaultTileTypeChar = '0';
+
+	static bool IsValidTileTypeChar(char c);
 
 	const char tileId;
 	const std::string name;

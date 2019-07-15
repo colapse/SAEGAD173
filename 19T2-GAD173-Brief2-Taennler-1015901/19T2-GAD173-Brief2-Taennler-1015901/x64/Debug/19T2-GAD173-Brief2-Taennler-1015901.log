@@ -1,19 +1,16 @@
 ﻿  main.cpp
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\textinput.h(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\button.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\tiletype.h(8): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\tiletype.h(11): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\tile.h(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\tile.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.h(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\level.h(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\view.h(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(114): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(515): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
-              T=unsigned int
+              T=int
           ]
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(394): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(588): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-taennler-1015901\19t2-gad173-brief2-taennler-1015901\main.cpp(975): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+          and
+          [
+              T=int
+          ]
   19T2-GAD173-Brief2-Taennler-1015901.vcxproj -> C:\Users\lucat\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief2-Taennler-1015901\x64\Debug\19T2-GAD173-Brief2-Taennler-1015901.exe

@@ -1,7 +1,7 @@
 #pragma once
-#ifndef SFML/Graphics.hpp
+#ifndef SFML_GRAPHICS_HPP
 #include <SFML/Graphics.hpp>
-#endif // !SFML/Graphics.hpp
+#endif // !SFML_GRAPHICS_HPP
 #ifndef functional
 #include <functional>
 #endif // !functional

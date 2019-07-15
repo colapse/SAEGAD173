@@ -68,7 +68,7 @@ sf::Vector2i mousePos;
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(500, 500), "Week 7 ex!");
+	sf::RenderWindow window(sf::VideoMode(250, 250), "Week 7 ex!");
 	LoadGrid(); std::cout << grid.size();
 	if (grid.size() == 0) {
 		grid = std::vector<std::vector<Brick*>>(sizeY, std::vector<Brick*>(sizeX));
@@ -275,6 +275,7 @@ void LoadGrid() {
 			sizeY = ySize;
 		}
 	}
+	myfile.close();
 }
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

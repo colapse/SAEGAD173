@@ -17,17 +17,21 @@ Tile::Tile() {
 }
 
 Tile::~Tile() {
-
+	tileType = nullptr;
+	if(sprite != nullptr){
+		//delete sprite;
+		sprite = nullptr;
+	}
 }
 
 void Tile::SetPosition(float x, float y) {
-	sprite.setPosition(x, y);
+	sprite->setPosition(x, y);
 	//sf::Vector2i intPos(x, y);
 	//sprite.setTextureRect(sf::IntRect(intPos, size));
 }
 
 void Tile::SetPosition(sf::Vector2f pos) {
-	sprite.setPosition(pos);
+	sprite->setPosition(pos);
 	//sf::Vector2i intPos(pos.x, pos.y);
 	//sprite.setTextureRect(sf::IntRect(intPos, size));
 }
@@ -36,7 +40,7 @@ TileType * Tile::GetTileType() {
 	return tileType;
 }
 
-sf::Sprite Tile::GetSprite() {
+sf::Sprite * Tile::GetSprite() {
 	return sprite;
 }
 
@@ -64,10 +68,10 @@ void Tile::SetTileType(TileType * tileType) {
 		sprite.setTexture(*texture);
 	}*/
 	if (TileType::tileTypeTextures[tileType->tileId] != nullptr)
-		sprite.setTexture(*TileType::tileTypeTextures[tileType->tileId]);
+		sprite->setTexture(*TileType::tileTypeTextures[tileType->tileId]);
 	else {
 		sf::Texture t;
 		t.create(size.x, size.y);
-		sprite.setTexture(t);
+		sprite->setTexture(t);
 	}
 }

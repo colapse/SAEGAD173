@@ -16,12 +16,18 @@ Button::Button()
 
 Button::~Button()
 {
-	if (_txtText != nullptr)
+	if (_txtText != nullptr) {
 		delete _txtText;
-	if (_shape != nullptr)
+		_txtText = nullptr;
+	}
+	if (_shape != nullptr) {
 		delete _shape;
-	if (_sprite != nullptr)
+		_shape = nullptr;
+	}
+	if (_sprite != nullptr) {
 		delete _sprite;
+		_sprite = nullptr;
+	}
 }
 
 /** OnButtonDown: Executes functions when button is pressed down. (Happens only once until button is released again) */
@@ -211,8 +217,21 @@ void Button::RemoveMouseExitFunc(std::function<void()> * func) {
 	 * @param shape The pointer to the shape
 	*/
 void Button::SetShape(sf::Shape * shape) {
+	if (this->_shape != nullptr)
+		delete this->_shape;
+
 	this->_shape = shape; // Assign the shape pointer
 	SetTextPosition(); // This function call will realign the text to the new boundaries of the button
+}
+
+/** SetShape: Assign a pointer to a shape (This can be a RectangularShape, CircleShape or any other child class of sf::Shape
+	 * @param shape The pointer to the shape
+	*/
+void Button::SetSprite(sf::Sprite * sprite) {
+	if (this->_sprite != nullptr)
+		delete this->_sprite;
+
+	this->_sprite = sprite; // Assign the shape pointer
 }
 
 /** SetPosition: Sets the position of the button
@@ -312,6 +331,13 @@ sf::Text * Button::GetTextObject() {
 */
 sf::Shape * Button::GetShapeObject() {
 	return _shape;
+}
+
+/** GetSpriteObject: Returns the pointer to the shape component
+ * @return sf::Shape The pointer to the shape
+*/
+sf::Sprite * Button::GetSpriteObject() {
+	return _sprite;
 }
 
 /** GetGlobalBounds: Returns the global bounds of the shape component

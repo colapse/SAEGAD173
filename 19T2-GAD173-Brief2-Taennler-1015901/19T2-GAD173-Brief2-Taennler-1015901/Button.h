@@ -1,8 +1,8 @@
 #pragma once
 
-#ifndef SFML/Graphics.hpp
+#ifndef SFML_GRAPHICS_HPP
 #include <SFML/Graphics.hpp>
-#endif // !SFML/Graphics.hpp
+#endif // !SFML_GRAPHICS_HPP
 #ifndef functional
 #include <functional>
 #endif // !functional
@@ -108,6 +108,8 @@ public:
 	*/
 	void SetShape(sf::Shape * shape);
 
+	void SetSprite(sf::Sprite * shape);
+
 	/** SetPosition: Sets the position of the button
 	 * @param x The new x position
 	 * @param y The new y position
@@ -156,6 +158,8 @@ public:
 	 * @return sf::Shape The pointer to the shape
 	*/
 	sf::Shape * GetShapeObject();
+
+	sf::Sprite * GetSpriteObject();
 
 	/** GetGlobalBounds: Returns the global bounds of the shape component
 	 * @return sf::FloatRect the bounds of the shape

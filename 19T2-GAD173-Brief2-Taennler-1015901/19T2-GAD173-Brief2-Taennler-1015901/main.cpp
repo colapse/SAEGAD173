@@ -15,6 +15,8 @@
 #include <algorithm>
 #include <iterator>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 
 /*
 TILE TYPES
@@ -26,26 +28,35 @@ s = Player Spawn Position
 t = Player Terminal/Exit point
 
 */
+
+
 #pragma region Global Function Declarations
+enum class ViewName;
 void WindowLifeCycle();
 void InitMainMenuView();
-void CreateTileButtons();
-void DrawGrid();
-void DrawButtons();
+void CreateLevelEditorTileButtons();
+//void DrawGrid();
+//void DrawButtons();
 void LoadTileTextures(int tileWidth, int tileHeight);
 void InitVars();
-void DrawActiveView();
-void HanleViewEvents(sf::Event e);
+void DrawActiveView(ViewName activeView);
+void HandleViewEvents(ViewName viewName, sf::Event e);
 void LoadLevelsFromDirectory();
+Level* LoadLevelFromFile(std::string file);
+std::vector<std::string> SplitStringByDeli(std::string stringToSplit, char delimeter);
+void InitLevelEditorView();
+void LevelEditorLoadLevel(Level * pLevel);
+void InitLevelEditorSideBarView();
 #pragma endregion
 
 #pragma region Global Variables
+
 enum class ViewName
 {
 	MainMenu,
-	LevelEditor
+	LevelEditor,
+	LevelEditorSideBar
 };
-
 std::map<ViewName, View*> views;
 
 sf::RenderWindow renderWindow;
@@ -58,27 +69,26 @@ std::string fontName = "Radiant.ttf"; // Font retrieved from https://www.dafont.
 std::string levelFolder = "levels";
 std::string levelExt = ".lvl";
 
-ViewName activeView = ViewName::MainMenu;
+std::string texturePath = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";//C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
+
+std::vector<ViewName> activeViews;
 
 std::vector<std::string> levelsInFolder; //levels in level folder
 
 
-#pragma endregion
-
-
-std::string texturePath = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\";//C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
-
-std::vector<Button*> buttons;
-
-
-std::vector<std::vector<Button*>> buttonGrid;
 Level * activeLevel;
-//std::vector<std::vector<Tile>> currentGrid;
 
-
+bool enableZoom = true;
+float currentZoom = 1;
+float mouseWheelScrollX = 0;
 sf::Vector2f mousePos;
+sf::Vector2i mousePosInt;
 float deltaTime = 0;
 
+#pragma endregion
+
+bool leftMouseButtonPressed = false;
+bool middleMouseButtonPressed = false;
 int main()
 {
 	TileType::tileTypes = {
@@ -92,26 +102,477 @@ int main()
 	};
 
 	LoadLevelsFromDirectory();
+	LoadTileTextures(50, 50);
 	InitVars();
 	InitMainMenuView();
-	LoadLevelsFromDirectory();
+	InitLevelEditorView();
+	activeViews.push_back(ViewName::MainMenu);
+
 	WindowLifeCycle();
+}
+
+
+#pragma region Load/Unload
+Level* LoadLevelFromFile(std::string file) {
+	Level * level = nullptr;
+	std::ifstream myfile(file);
+	std::vector<std::vector<char>> charGrid;
+	std::string line;
+	if (myfile.is_open()) {
+		
+		int yOffset = -1;
+		int xSize = 0;
+		int ySize = 0;
+		while (std::getline(myfile, line)) {
+			if (line.length() == 0)
+				continue;
+			std::stringstream ss{ line };
+			std::string entry;
+
+			if (yOffset == -1) {
+				int delimCounter = 0;
+				while (std::getline(ss, entry, ':')) {
+					if (delimCounter == 0)
+						xSize = static_cast<int>(std::stoi(entry));
+					else if (delimCounter == 1)
+						ySize = static_cast<int>(std::stoi(entry));
+
+					delimCounter++;
+				}
+
+				yOffset = 0;
+
+				charGrid = std::vector<std::vector<char>>(ySize, std::vector<char>(xSize, TileType::defaultTileTypeChar));
+			}
+			else {
+				if (yOffset >= ySize)
+					break;
+				//grid.push_back(std::vector<Brick*>());
+				int xOffset = 0;
+				std::vector<std::string> parts = SplitStringByDeli(line,',');
+				for (std::string part : parts) {
+					if (xOffset >= xSize)
+						break;
+
+					char tileType;
+					// Read TileType
+					if (part.length() > 0)
+						tileType = part[0];
+					else
+						tileType = TileType::defaultTileTypeChar;
+
+					if (!TileType::IsValidTileTypeChar(tileType)) {
+						tileType = TileType::defaultTileTypeChar;
+					}
+
+					// Read settings (If there are any)
+					std::map<std::string, std::string> tileSettings;
+					unsigned first = (unsigned)part.find_first_of('[');
+					unsigned last = (unsigned)part.find_last_of(']');
+					if (first != std::string::npos && last != std::string::npos && first < part.size() && last < part.size()) {
+						std::string values = part.substr(first, last - first);
+						if (values.length() > 0) {
+							std::vector<std::string> settings = SplitStringByDeli(values, ',');
+							if (settings.size() > 0) {
+								for (std::string setting : settings) {
+									std::vector<std::string> settingParts = SplitStringByDeli(setting, '=');
+
+									if (settingParts.size() >= 1) {
+										tileSettings.insert({ settingParts[0] , ((settingParts.size() >= 2) ? settingParts[1] : "")});
+									}
+								}
+							}
+						}
+					}
+
+					charGrid[yOffset][xOffset] = tileType;
+					//TODO Assign settings
+					xOffset++;
+				}
+
+				yOffset++;
+			}
+		}
+
+		if(yOffset > 1)
+		level = new Level(charGrid, Level::defaultTileSize);
+		level->existingFile = file;
+	}
+	myfile.close();
+
+	return level;
+}
+
+bool SaveLevel(Level * level) {
+	std::string filename = level->existingFile;
+	bool createdNewFile = false;
+
+	if (filename.length() == 0 || !std::filesystem::exists(filename)) {
+		if (level->levelName.length() > 0) {
+			filename = level->levelName;
+			filename.erase(std::remove_if(filename.begin(), filename.end(), isspace), filename.end());
+			filename = exeDir + levelFolder + "\\" + filename + levelExt;
+		}
+		else {
+			filename = "level";
+			while (std::filesystem::exists(filename)) {
+				filename += std::to_string(std::rand()%9+1);
+			}
+			filename = exeDir + levelFolder + "\\" + filename + levelExt;
+		}
+
+		createdNewFile = true;
+	}
+
+	std::ofstream myfile(filename);
+	if (myfile.is_open()) {
+		for (int y = 0; y < level->gridSize.y; y++) {
+			if (y == 0) {
+				myfile << std::to_string(level->gridSize.y) + ":" + std::to_string(level->gridSize.x) + "\n";
+			}
+			for (int x = 0; x < level->gridSize.x; x++) {
+				if (level->GetTileAtCoord(x,y) == nullptr || level->GetTileAtCoord(x, y)->GetTileType() == nullptr) {
+					myfile << TileType::defaultTileTypeChar;
+				}
+				else {
+					myfile << level->GetTileAtCoord(x, y)->GetTileType()->tileId;
+				}
+				if (x < level->gridSize.x - 1)
+					myfile << ",";
+			}
+			myfile << "\n";
+		}
+		myfile.close();
+
+		if (createdNewFile) {
+			level->existingFile = filename;
+			LoadLevelsFromDirectory();// TODO Need to update fastaccess levels in main view!
+		}
+
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+std::vector<std::string> SplitStringByDeli(std::string stringToSplit, char delimeter) {
+	std::vector<std::string> parts;
+
+	std::stringstream ss{ stringToSplit };
+	std::string entry;
+
+	while (std::getline(ss, entry, delimeter)) {
+		parts.push_back(entry);
+	}
+
+	return parts;
 }
 
 // original from https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
 void LoadLevelsFromDirectory() {
 	levelsInFolder.clear();
-	for (const auto & entry : std::filesystem::directory_iterator(exeDir+levelFolder)) {
+	for (const auto & entry : std::filesystem::directory_iterator(exeDir + levelFolder)) {
 		if (entry.is_regular_file() && entry.path().extension() == levelExt) {
 			levelsInFolder.push_back(entry.path().stem().u8string());
 		}
 	}
 }
 
+void LoadTileTextures(int tileWidth, int tileHeight) {
+	//tileTypeTextures = std::map<char, sf::Texture>(tileTypes.size());
+	for (auto itr = TileType::tileTypes.begin(); itr != TileType::tileTypes.end(); ++itr) {
+		sf::Texture * texture = new sf::Texture();
+		if (!texture->loadFromFile(itr->second->spriteLoc, sf::IntRect(0, 0, tileWidth, tileHeight)))
+		{
+		}
+		else {
+			TileType::tileTypeTextures.insert({ itr->first,texture });
+		}
+	}
+}
+
+void LevelEditorLoadLevel(Level * pLevel) {
+	activeLevel = pLevel;
+
+	if (pLevel == nullptr)
+		return;
+
+	InitLevelEditorSideBarView();
+
+	for (int y = 0; y < pLevel->gridSize.y; y++) {
+		for (int x = 0; x < pLevel->gridSize.x; x++) {
+			views[ViewName::LevelEditor]->AddSprite(pLevel->GetTileAtCoord(x, y)->GetSprite());
+		}
+	}
+
+	CreateLevelEditorTileButtons();
+
+	//sf::RectangleShape * viewBg = new sf::RectangleShape(sf::Vector2f(views[ViewName::LevelEditor]->GetSFView()->getSize().x, views[ViewName::LevelEditor]->GetSFView()->getSize().y));
+	sf::RectangleShape * viewBg = new sf::RectangleShape(sf::Vector2f(pLevel->gridSize.x * pLevel->tileSize, pLevel->gridSize.y * pLevel->tileSize));
+	viewBg->setFillColor(sf::Color::Color(154, 217, 234, 255));
+	views[ViewName::LevelEditor]->AddShape(viewBg, true);
+}
+
+void LevelEditorUnloadLevel() {
+	delete views[ViewName::LevelEditor];
+	views[ViewName::LevelEditor] = nullptr;
+	delete activeLevel;
+	activeLevel = nullptr;
+
+	InitLevelEditorView();
+}
+
+#pragma endregion
+
 #pragma region Initialize
 
+TileType* activeBrush;
+Button* activeBrushButtonPtr;
+std::vector<Button*> brushButtons;
+
+void InitLevelEditorSideBarView() {
+	View * editorBarView = new View("Level Editor Side Bar", (float)renderWindow.getSize().x, (float)renderWindow.getSize().y);
+	float yOffset = 10;
+	sf::View * sfView = new sf::View(sf::FloatRect(0, 0, renderWindow.getSize().x*0.15f, (float)renderWindow.getSize().y)); //renderWindow.getPosition().x + renderWindow.getSize().x/2, renderWindow.getPosition().y + renderWindow.getSize().y / 2
+	sfView->setViewport(sf::FloatRect(0, 0, 0.15f, 1));
+	editorBarView->SetSfView(sfView);
+
+	// Background
+	sf::RectangleShape * viewBg = new sf::RectangleShape(sf::Vector2f(sfView->getSize().x, sfView->getSize().y));
+	viewBg->setFillColor(sf::Color::Color(99, 99, 99, 255));
+	editorBarView->AddShape(viewBg, true);
+
+
+	// Txt level name
+	sf::Text * txtLevelName = new sf::Text("Level Name:", generalFont, 18);
+	sf::Vector2f txtNewLevelNamePos(sfView->getSize().x / 2 - txtLevelName->getGlobalBounds().width / 2, yOffset);
+	txtLevelName->setPosition(txtNewLevelNamePos);
+	yOffset += txtLevelName->getGlobalBounds().height + 10;
+	editorBarView->AddText(txtLevelName);
+
+	// Txt Field level name
+	TextInput * tiLevelName = new TextInput();
+	tiLevelName->SetFont(generalFont);
+	tiLevelName->SetSize(sfView->getSize().x - 20, 20);
+	tiLevelName->allowOnlyAlphaNumerical = true;
+	tiLevelName->maxLength = 30;
+	sf::Vector2f tiLevelNamePos(sfView->getSize().x / 2 - tiLevelName->GetBoundaries().width/2, yOffset);
+	tiLevelName->SetPosition(tiLevelNamePos);
+	tiLevelName->SetTextColor(sf::Color::Black);
+	//// Create mouse enter lambda func which changes the Outline color
+	auto FnMOver_TILevelName = [tiLevelName]() {
+		if (!tiLevelName->HasFocus())
+			tiLevelName->SetBorder(2, sf::Color::Black);
+	};
+	tiLevelName->AddOnMouseEnterFunc(FnMOver_TILevelName); // Assign func to input
+	//// Create mouse exit lambda func which changes the Outline color
+	auto FnMExit_TILevelName = [tiLevelName]() {
+		if (!tiLevelName->HasFocus())
+			tiLevelName->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiLevelName->AddOnMouseExitFunc(FnMExit_TILevelName); // Assign func to input
+	//// Create focus lambda func which changes the Outline color
+	auto FnMFocus_TILevelName = [tiLevelName]() {
+		tiLevelName->SetBorder(2, sf::Color::Cyan);
+	};
+	tiLevelName->AddOnFocusFunc(FnMFocus_TILevelName); // Assign func to input
+	//// Create focus exit lambda func which changes the Outline color
+	auto FnMFocusExit_TILevelName = [tiLevelName]() {
+		tiLevelName->SetBorder(2, sf::Color::Color(99, 99, 99, 255));
+	};
+	tiLevelName->AddOnFocusExitFunc(FnMFocusExit_TILevelName); // Assign func to input
+
+	//// Create focus exit lambda func which changes the Outline color
+	auto FnMTIn_TILevelName = [tiLevelName]() {
+		if (activeLevel != nullptr)
+			activeLevel->levelName = tiLevelName->GetText();
+
+	};
+	tiLevelName->AddOnTextInputFunc(FnMTIn_TILevelName); // Assign func to input
+
+	// Fill data if accessible
+	if (activeLevel != nullptr) {
+		tiLevelName->SetText(activeLevel->levelName);
+	}
+
+	editorBarView->AddTextInput(tiLevelName);
+	yOffset += tiLevelName->GetBoundaries().height + 10;
+
+	// Button Save Level
+	Button * btnSaveLevel = new Button();
+	sf::RectangleShape * rectBtnSaveLevel = new sf::RectangleShape(sf::Vector2f(sfView->getSize().x -20, 30));
+	btnSaveLevel->SetShape(rectBtnSaveLevel);
+	btnSaveLevel->SetFillColor(sf::Color::Green);
+	btnSaveLevel->SetText("Save", sf::Color::Black);
+	btnSaveLevel->SetFont(generalFont);
+	btnSaveLevel->SetOutline(2, sf::Color::Color(0, 143, 43, 255));
+	btnSaveLevel->SetPosition(10, yOffset);
+
+	//// Create mouse enter lambda func which changes the BG col
+	auto FnMOver_BTNSaveLevel = [btnSaveLevel]() {
+		btnSaveLevel->SetFillColor(sf::Color::Color(0, 143, 43, 255));
+	};
+	btnSaveLevel->AddMouseEnterFunc(FnMOver_BTNSaveLevel); // Assign func to input
+	//// Create mouse exit lambda func which changes the BG col
+	auto FnMExit_BTNSaveLevel = [btnSaveLevel]() {
+		btnSaveLevel->SetFillColor(sf::Color::Green);
+	};
+	btnSaveLevel->AddMouseExitFunc(FnMExit_BTNSaveLevel); // Assign func to input
+	//// Create mouse click func
+	auto FnMReleased_BTNSaveLevel = []() {
+		if(activeLevel != nullptr && SaveLevel(activeLevel))
+			std::cout << "Level saved! "+activeLevel->existingFile << std::endl;
+		else
+			std::cout << "Level couldn't be saved! " + activeLevel->existingFile << std::endl;
+	};
+	btnSaveLevel->AddButtonReleasedFunc(FnMReleased_BTNSaveLevel); // Assign func to input
+
+	yOffset += btnSaveLevel->GetGlobalBounds().height + 5;
+	editorBarView->AddButton(btnSaveLevel);
+
+	// Button Reset Level
+	Button * btnResetLevel = new Button();
+	sf::RectangleShape * rectBtnResetLevel = new sf::RectangleShape(sf::Vector2f(sfView->getSize().x - 20, 30));
+	btnResetLevel->SetShape(rectBtnResetLevel);
+	btnResetLevel->SetFillColor(sf::Color::Yellow);
+	btnResetLevel->SetText("Reset", sf::Color::Black);
+	btnResetLevel->SetFont(generalFont);
+	btnResetLevel->SetOutline(2, sf::Color::Color(199, 209, 4, 255));
+	btnResetLevel->SetPosition(10, yOffset);
+
+	//// Create mouse enter lambda func which changes the BG col
+	auto FnMOver_BTNResetLevel = [btnResetLevel]() {
+		btnResetLevel->SetFillColor(sf::Color::Color(199, 209, 4, 255));
+	};
+	btnResetLevel->AddMouseEnterFunc(FnMOver_BTNResetLevel); // Assign func to input
+	//// Create mouse exit lambda func which changes the BG col
+	auto FnMExit_BTNResetLevel = [btnResetLevel]() {
+		btnResetLevel->SetFillColor(sf::Color::Yellow);
+	};
+	btnResetLevel->AddMouseExitFunc(FnMExit_BTNResetLevel); // Assign func to input
+	//// Create mouse click func
+	auto FnMReleased_BTNResetLevel = []() {
+		std::cout << "================ TODO: Reset level grid! " + activeLevel->levelName << std::endl;
+	};
+	btnResetLevel->AddButtonReleasedFunc(FnMReleased_BTNResetLevel); // Assign func to input
+
+	yOffset += btnResetLevel->GetGlobalBounds().height + 5;
+	editorBarView->AddButton(btnResetLevel);
+
+	// Button Cancel Level
+	Button * btnCancelLevel = new Button();
+	sf::RectangleShape * rectBtnCancelLevel = new sf::RectangleShape(sf::Vector2f(sfView->getSize().x - 20, 30));
+	btnCancelLevel->SetShape(rectBtnCancelLevel);
+	btnCancelLevel->SetFillColor(sf::Color::Red);
+	btnCancelLevel->SetText("Cancel", sf::Color::Black);
+	btnCancelLevel->SetFont(generalFont);
+	btnCancelLevel->SetOutline(2, sf::Color::Color(166, 7, 7, 255));
+	btnCancelLevel->SetPosition(10, yOffset);
+
+	//// Create mouse enter lambda func which changes the BG col
+	auto FnMOver_BTNCancelLevel = [btnCancelLevel]() {
+		btnCancelLevel->SetFillColor(sf::Color::Color(166, 7, 7, 255));
+	};
+	btnCancelLevel->AddMouseEnterFunc(FnMOver_BTNCancelLevel); // Assign func to input
+	//// Create mouse exit lambda func which changes the BG col
+	auto FnMExit_BTNCancelLevel = [btnCancelLevel]() {
+		btnCancelLevel->SetFillColor(sf::Color::Red);
+	};
+	btnCancelLevel->AddMouseExitFunc(FnMExit_BTNCancelLevel); // Assign func to input
+	//// Create mouse click func
+	auto FnMReleased_BTNCancelLevel = []() {
+		LevelEditorUnloadLevel();
+		activeViews.clear();
+		activeViews.push_back(ViewName::MainMenu);
+	};
+	btnCancelLevel->AddButtonReleasedFunc(FnMReleased_BTNCancelLevel); // Assign func to input
+
+	yOffset += btnCancelLevel->GetGlobalBounds().height + 15;
+	editorBarView->AddButton(btnCancelLevel);
+
+	
+
+	// Txt Tile Brushes
+	sf::Text * txtTileBrushes = new sf::Text("Tile Brushes:", generalFont, 18);
+	sf::Vector2f txtTileBrushesPos(sfView->getSize().x / 2 - txtTileBrushes->getGlobalBounds().width / 2, yOffset);
+	txtTileBrushes->setPosition(txtTileBrushesPos);
+	yOffset += txtTileBrushes->getGlobalBounds().height + 10;
+	editorBarView->AddText(txtTileBrushes);
+
+	float xOffset = 10;
+	float tileButtonSize = (sfView->getSize().x-30)/3;
+	for (auto const& entry : TileType::tileTypes) {
+		Button * ttb = new Button();
+		TileType * tt = entry.second;
+
+		sf::RectangleShape * rect = new sf::RectangleShape(sf::Vector2f(tileButtonSize, tileButtonSize));
+		ttb->SetShape(rect);
+		ttb->SetOutline(2, sf::Color::Color(99,99,99, 255));
+		ttb->SetPosition(xOffset, yOffset);
+
+		
+		sf::Sprite * btnSprite = new sf::Sprite(*TileType::tileTypeTextures[entry.first], sf::IntRect(0, 0, activeLevel->tileSize, activeLevel->tileSize));
+		btnSprite->setScale(tileButtonSize/activeLevel->tileSize, tileButtonSize/ activeLevel->tileSize);
+		btnSprite->setPosition(xOffset, yOffset);
+		ttb->SetSprite(btnSprite);
+
+		//// Create mouse enter lambda func which changes the BG col
+		auto FnMOver = [ttb]() {
+			ttb->SetOutline(2, sf::Color::Green);
+		};
+		ttb->AddMouseEnterFunc(FnMOver); // Assign func to input
+		//// Create mouse exit lambda func which changes the BG col
+		auto FnMExit = [ttb, tt]() {
+			if(activeBrush != tt)
+				ttb->SetOutline(2, sf::Color::Color(99, 99, 99, 255));
+		};
+		ttb->AddMouseExitFunc(FnMExit); // Assign func to input
+		//// Create mouse click func
+		auto FnMReleased = [ttb, tt]() {
+			activeBrush = tt;
+
+			for (Button * b : brushButtons) {
+				b->SetOutline(2, sf::Color::Color(99, 99, 99, 255));
+			}
+
+			ttb->SetOutline(2, sf::Color::Green);
+		};
+		ttb->AddButtonReleasedFunc(FnMReleased); // Assign func to input
+
+
+		xOffset += tileButtonSize + 5;
+		if (xOffset + tileButtonSize >= sfView->getSize().x) {
+			xOffset = 10;
+			yOffset += tileButtonSize + 5;
+		}
+
+		editorBarView->AddButton(ttb);
+		brushButtons.push_back(ttb);
+	}
+
+	views.insert({ ViewName::LevelEditorSideBar, editorBarView });
+}
+
+void InitLevelEditorView() {
+	View * editorView = new View("Level Editor", (float)renderWindow.getSize().x, (float)renderWindow.getSize().y);
+	float yOffset = 10;
+	sf::View * sfView = new sf::View(sf::FloatRect(0,0, renderWindow.getSize().x*0.85f, (float)renderWindow.getSize().y)); //renderWindow.getPosition().x + renderWindow.getSize().x/2, renderWindow.getPosition().y + renderWindow.getSize().y / 2
+	sfView->setViewport(sf::FloatRect(0.15f, 0, 0.85f, 1));
+	editorView->SetSfView(sfView);
+
+	auto it = views.find(ViewName::LevelEditor);
+	if (it != views.end()) {
+		views[ViewName::LevelEditor] = editorView;
+	}
+	else {
+		views.insert({ ViewName::LevelEditor, editorView });
+	}
+	
+}
+
 void InitMainMenuView() {
-	View * mainMenuView = new View("Main Menu", renderWindow.getSize().x, renderWindow.getSize().y);
+	View * mainMenuView = new View("Main Menu", (float)renderWindow.getSize().x, (float)renderWindow.getSize().y);
 	float yOffset = 10;
 
 	// Title
@@ -271,6 +732,18 @@ void InitMainMenuView() {
 		btnCreateNewLevel->SetFillColor(sf::Color::Green);
 	};
 	btnCreateNewLevel->AddMouseExitFunc(FnMExit_BTNCreateNewLevel); // Assign func to input
+	//// Create mouse click func
+	auto FnMReleased_BTNCreateNewLevel = [tiNewLevelName,tiNewLevelWidth,tiNewLevelHeight]() {
+		Level * newLevel = new Level(std::stoi(tiNewLevelWidth->GetText()), std::stoi(tiNewLevelHeight->GetText()),Level::defaultTileSize,tiNewLevelName->GetText());
+		
+		LevelEditorLoadLevel(newLevel);
+		activeViews.clear();
+		activeViews.push_back(ViewName::LevelEditorSideBar);
+		activeViews.push_back(ViewName::LevelEditor);
+		//activeView = ViewName::LevelEditor;
+		// TODO Change View
+	};
+	btnCreateNewLevel->AddButtonReleasedFunc(FnMReleased_BTNCreateNewLevel); // Assign func to input
 
 	yOffset += btnCreateNewLevel->GetGlobalBounds().height + 40;
 	mainMenuView->AddButton(btnCreateNewLevel);
@@ -340,13 +813,26 @@ void InitMainMenuView() {
 		btnOpenLevelByPath->SetFillColor(sf::Color::Green);
 	};
 	btnOpenLevelByPath->AddMouseExitFunc(FnMExit_BTNOpenLevelByPath); // Assign func to input
+	//// Create button release lambda func which tries to load the level
+	auto FnMRelease_BTNLevel = [tiPath]() {
+		std::string filename = tiPath->GetText();
+		Level * level = LoadLevelFromFile(filename);
+
+		if (level != nullptr) {
+			LevelEditorLoadLevel(level);
+			activeViews.clear();
+			activeViews.push_back(ViewName::LevelEditorSideBar);
+			activeViews.push_back(ViewName::LevelEditor);
+		}
+	};
+	btnOpenLevelByPath->AddButtonReleasedFunc(FnMRelease_BTNLevel); // Assign func to input
 
 	mainMenuView->AddButton(btnOpenLevelByPath);
 
 	yOffset += btnOpenLevelByPath->GetGlobalBounds().height + 20;
 
 	// Txt Level Folder
-	sf::Text * txtFastAccess = new sf::Text("Fast Access (TODO): ", generalFont, 18);
+	sf::Text * txtFastAccess = new sf::Text("Fast Access (/levels): ", generalFont, 18);
 	sf::Vector2f txtFastAccessPos(mainMenuView->GetViewRect()->getGlobalBounds().left + mainMenuView->GetViewRect()->getGlobalBounds().width / 2 - txtFastAccess->getGlobalBounds().width / 2, yOffset);
 	txtFastAccess->setPosition(txtFastAccessPos);
 	mainMenuView->AddText(txtFastAccess);
@@ -374,11 +860,22 @@ void InitMainMenuView() {
 			btnLevel->SetFillColor(sf::Color::Green);
 		};
 		btnLevel->AddMouseExitFunc(FnMExit_BTNLevel); // Assign func to input
-		//// Create mouse exit lambda func which changes the BG col
+		//// Create button release lambda func which changes the BG col
 		std::string filename = levelsInFolder[i];
 		auto FnMRelease_BTNLevel = [filename]() {
 			// TODO Load Level
 			std::cout << "[TODO] Load Level "+ filename +"!" << std::endl;
+			Level * level = LoadLevelFromFile(exeDir+levelFolder+"\\"+filename+levelExt);
+
+			if (level != nullptr) {
+				LevelEditorLoadLevel(level);
+				activeViews.clear();
+				activeViews.push_back(ViewName::LevelEditorSideBar);
+				activeViews.push_back(ViewName::LevelEditor);
+			}
+			else {
+				std::cout << "Couldn't load level " + filename << std::endl;
+			}
 		};
 		btnLevel->AddButtonReleasedFunc(FnMRelease_BTNLevel); // Assign func to input
 
@@ -391,7 +888,7 @@ void InitMainMenuView() {
 }
 
 void InitVars() {
-	renderWindow.create(sf::VideoMode(windowWidth, windowHeight), "Level Editor - GAD173 - Brief 2"); // Initialize the window
+	renderWindow.create(sf::VideoMode((unsigned)windowWidth, (unsigned)windowHeight), "Level Editor - GAD173 - Brief 2"); // Initialize the window
 
 	// Try to load the main font
 	if (!generalFont.loadFromFile(exeDir + fontName))
@@ -403,119 +900,188 @@ void InitVars() {
 #pragma endregion
 
 
+#pragma region General Logic
+
+sf::Vector2i lastMousePos;
 void WindowLifeCycle() {
-	
+
 
 	sf::Clock Clock;
 	int offset = 0;
 
-
-	LoadTileTextures(50,50);
-	activeLevel = new Level(5, 5, 50, 50);
-	CreateTileButtons();
-	
-	//int windowWidth = activeLevel->gridSize.x * activeLevel->tileSize.x;
-	//int windowHeight = activeLevel->gridSize.y * activeLevel->tileSize.y;
 	sf::RectangleShape windowBg(sf::Vector2f(windowWidth, windowHeight));
-	windowBg.setFillColor(sf::Color::Color(33,33,33,255));
-	//renderWindow.create(sf::VideoMode(windowWidth, windowHeight), "Level Editor - GAD173 - Brief 2");
+	windowBg.setFillColor(sf::Color::Color(33, 33, 33, 255));
+
 	while (renderWindow.isOpen())
 	{
+
+		mouseWheelScrollX = 0;
+
 		deltaTime = Clock.restart().asSeconds();
 		sf::Event event;
 		while (renderWindow.pollEvent(event))
 		{
-			HanleViewEvents(event);
+			for (ViewName viewName : activeViews) {
+				HandleViewEvents(viewName, event);
+			}
+
 			switch (event.type) {
 			case sf::Event::Closed: {
 				renderWindow.close();
 				break;
 			}
 			case sf::Event::MouseMoved: {
-				sf::Vector2i mousePosInt = sf::Mouse::getPosition(renderWindow);
+				mousePosInt = sf::Mouse::getPosition(renderWindow);
 				mousePos.x = (float)mousePosInt.x;
 				mousePos.y = (float)mousePosInt.y;
-
-				for (Button* b : buttons) {
-					if (b->GetGlobalBounds().contains(mousePos)) {
-						b->SetMouseEnter();
-					}
-					else {
-						b->SetMouseExit();
-					}
-				}
+				break;
+			}
+			case sf::Event::MouseWheelScrolled: {
+				mouseWheelScrollX = event.mouseWheelScroll.delta;
 				break;
 			}
 			case sf::Event::MouseButtonPressed: {
-				for (Button* b : buttons) {
-					if (b->GetGlobalBounds().contains(mousePos)) {
-						b->SetButtonPressed();
-					}
-				}
+				if(event.mouseButton.button == sf::Mouse::Button::Left)
+					leftMouseButtonPressed = true;
+				if (event.mouseButton.button == sf::Mouse::Button::Middle)
+					middleMouseButtonPressed = true;
 				break;
 			}
 			case sf::Event::MouseButtonReleased: {
-				for (Button* b : buttons) {
-					b->SetButtonReleased();
-				}
+				if (event.mouseButton.button == sf::Mouse::Button::Left)
+					leftMouseButtonPressed = false;
+				if (event.mouseButton.button == sf::Mouse::Button::Middle)
+					middleMouseButtonPressed = false;
 				break;
 			}
-				
 			}
 
 		}
+
+
+		// TODO Testing view movement
+		if (std::find(activeViews.begin(), activeViews.end(), ViewName::LevelEditor) != activeViews.end() && views[ViewName::LevelEditor] != nullptr && activeLevel != nullptr) {
+			// ======== SCROLLING
+			sf::View * sfView = views[ViewName::LevelEditor]->GetSFView();
+			sf::Vector2f movement(0, 0);
+			float zoomMulti = 1;// (currentZoom < 1) ? std::abs(currentZoom) : currentZoom;
+			//std::cout << currentZoom << std::endl;
+
+			if (middleMouseButtonPressed) {
+				if (lastMousePos.x == 0 && lastMousePos.y == 0) {
+					lastMousePos = mousePosInt;
+					continue;
+				}
+				sf::Vector2i direction(lastMousePos.x - mousePos.x, lastMousePos.y - mousePos.y);
+				
+				if (direction.x > 10)
+					direction.x = 10;
+				if (direction.x < -10)
+					direction.x = -10;
+				if (direction.y > 10)
+					direction.y = 10;
+				if (direction.y < -10)
+					direction.y = -10;
+					
+				if (direction.x > 3 || direction.x < -3) {
+					movement.x = direction.x * 150 * deltaTime;
+				}
+				if (direction.y > 3 || direction.y < -3) {
+					movement.y = direction.y * 150 * deltaTime;
+				}
+
+				lastMousePos = mousePosInt;
+			}
+			else {
+				lastMousePos = sf::Vector2i(0, 0);
+				// Move grid in view with arrow keys
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) &&
+					(sfView->getCenter().x*zoomMulti - sfView->getSize().x / 2 - 150 * deltaTime) > 0)/*renderWindow.getSize().x / 2 * sfView->getViewport().width*/
+					movement.x = -150 * deltaTime;
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
+					(sfView->getCenter().x*zoomMulti + sfView->getSize().x / 2 + 150 * deltaTime) < activeLevel->tileSize*activeLevel->gridSize.x)/*renderWindow.getSize().x / 2 * sfView->getViewport().width */
+					movement.x = 150 * deltaTime;
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) &&
+					(sfView->getCenter().y*zoomMulti - sfView->getSize().y / 2 - 150 * deltaTime) > 0)/*renderWindow.getSize().y / 2 * sfView->getViewport().height*/
+					movement.y = -150 * deltaTime;
+				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) &&
+					(sfView->getCenter().y*zoomMulti + sfView->getSize().y / 2 + 150 * deltaTime) < activeLevel->tileSize*activeLevel->gridSize.y)/*renderWindow.getSize().y / 2 * sfView->getViewport().height*/
+					movement.y = 150 * deltaTime;
+
+			}
+			sfView->move(movement);
+			
+			//std::cout << sfView->getCenter().x - renderWindow.getSize().x / 2 * sfView->getViewport().width << std::endl;
+
+
+			if (enableZoom && mouseWheelScrollX != 0 && currentZoom + mouseWheelScrollX * deltaTime < 2 && currentZoom + mouseWheelScrollX * deltaTime > 0.8) {
+				//mouseWheelScrollX -= mouseWheelScrollX * deltaTime;
+				//currentZoom += mouseWheelScrollX * deltaTime;
+				currentZoom += mouseWheelScrollX * deltaTime * 5;
+				sfView->zoom(1 + mouseWheelScrollX * deltaTime * 5);
+			}
+		}
+
 		renderWindow.clear();
+		renderWindow.setView(renderWindow.getDefaultView());
 		renderWindow.draw(windowBg);
 
 
 		//DrawGrid();
 		//DrawButtons();
 
-		DrawActiveView();
+		for (ViewName viewName : activeViews) {
+			DrawActiveView(viewName);
+		}
+
 
 		renderWindow.display();
 	}
 }
 
-void DrawActiveView() {
+void DrawActiveView(ViewName activeView) {
 	if (views[activeView] == nullptr)
 		return;
 
-	// Draw Buttons
-	for (Button * ele : views[activeView]->GetButtons()) {
-		if (ele->isActive) {
-			renderWindow.draw(*ele->GetShapeObject());
-			renderWindow.draw(*ele->GetTextObject());
+	sf::View sfView;
+	if (views[activeView]->GetSFView() == nullptr)
+		sfView = renderWindow.getDefaultView();
+	else
+		sfView = *views[activeView]->GetSFView();
+
+	renderWindow.setView(sfView);
+
+	for (sf::Drawable * drawable : views[activeView]->GetDrawables()) {
+		if (drawable != nullptr) {
+			renderWindow.draw(*drawable);
 		}
-	}
 
-	// Draw Text Inputs
-	for (TextInput * ele : views[activeView]->GetTextInputs()) {
-		renderWindow.draw(*ele->GetRectComponent());
-		renderWindow.draw(*ele->GetTextComponent());
-	}
 
-	// Draw Shapes
-	for (sf::Shape * ele : views[activeView]->GetShapes()) {
-		renderWindow.draw(*ele);
-	}
-
-	// Draw Texts
-	for (sf::Text * ele : views[activeView]->GetTexts()) {
-		renderWindow.draw(*ele);
 	}
 
 }
 
-void HanleViewEvents(sf::Event e) {
-	if (views[activeView] == nullptr)
+#pragma endregion
+
+#pragma region View Logic
+
+void HandleViewEvents(ViewName viewName, sf::Event e) {
+	if (views[viewName] == nullptr)
 		return;
 
+	sf::View* sfView;
+	if (views[viewName]->GetSFView() == nullptr)
+		sfView = new sf::View(renderWindow.getDefaultView());
+	else
+		sfView = views[viewName]->GetSFView();
+
+	renderWindow.setView(*sfView);
+
 	// Buttons
-	for (Button * b : views[activeView]->GetButtons()) {
+	for (Button * b : views[viewName]->GetButtons()) {
 		switch (e.type) {
 		case sf::Event::MouseMoved:
-			if (b->isActive && b->GetGlobalBounds().contains(mousePos)) {
+			if (b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				b->SetMouseEnter();
 			}
 			else if(b->isActive) {
@@ -523,12 +1089,12 @@ void HanleViewEvents(sf::Event e) {
 			}
 			break;
 		case sf::Event::MouseButtonPressed:
-			if (b->isActive && b->GetGlobalBounds().contains(mousePos)) {
+			if (e.mouseButton.button == sf::Mouse::Button::Left && b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				b->SetButtonPressed();
 			}
 			break;
 		case sf::Event::MouseButtonReleased:
-			if (b->isActive) {
+			if (e.mouseButton.button == sf::Mouse::Button::Left && b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				b->SetButtonReleased();
 			}
 			break;
@@ -536,10 +1102,10 @@ void HanleViewEvents(sf::Event e) {
 	}
 
 	// TextInput
-	for (TextInput * ele : views[activeView]->GetTextInputs()) {
+	for (TextInput * ele : views[viewName]->GetTextInputs()) {
 		switch (e.type) {
 		case sf::Event::MouseMoved:
-			if (ele->GetBoundaries().contains(mousePos)) {
+			if (ele->GetBoundaries().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				ele->_OnMouseEnter();
 			}
 			else{
@@ -547,7 +1113,7 @@ void HanleViewEvents(sf::Event e) {
 			}
 			break;
 		case sf::Event::MouseButtonReleased:
-			if (ele->GetBoundaries().contains(mousePos)) {
+			if (ele->GetBoundaries().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				ele->_OnFocus();
 			}
 			else {
@@ -563,87 +1129,53 @@ void HanleViewEvents(sf::Event e) {
 	}
 }
 
-void LoadTileTextures(int tileWidth, int tileHeight) {
-	//tileTypeTextures = std::map<char, sf::Texture>(tileTypes.size());
-	for (auto itr = TileType::tileTypes.begin(); itr != TileType::tileTypes.end(); ++itr) {
-		sf::Texture * texture = new sf::Texture();
-		if (!texture->loadFromFile(itr->second->spriteLoc, sf::IntRect(0, 0, tileWidth, tileHeight)))
-		{
-		}
-		else {
-			TileType::tileTypeTextures.insert({ itr->first,texture });
-		}
-	}
-}
-
-void CreateTileButtons() {
-	buttonGrid.resize(activeLevel->gridSize.y, std::vector<Button*>(activeLevel->gridSize.x,nullptr));
+void CreateLevelEditorTileButtons() {
+	if (activeLevel == nullptr)
+		return;
+	//buttonGrid.resize(activeLevel->gridSize.y, std::vector<Button*>(activeLevel->gridSize.x,nullptr));
 	for (int y = 0; y < activeLevel->gridSize.y; y++) {
 		for (int x = 0; x < activeLevel->gridSize.x; x++) {
 			Button* b = new Button();
 
-			int outlineColorThickness = 2;
-			sf::RectangleShape * rect = new sf::RectangleShape(sf::Vector2f(activeLevel->tileSize.x- 2*outlineColorThickness, activeLevel->tileSize.y - 2*outlineColorThickness));
+			float outlineColorThickness = 2;
+			sf::RectangleShape * rect = new sf::RectangleShape(sf::Vector2f(activeLevel->tileSize- 2*outlineColorThickness, activeLevel->tileSize - 2*outlineColorThickness));
 			rect->setFillColor(sf::Color::Color(0,0,0,0));
 			rect->setOutlineThickness(outlineColorThickness);
 			rect->setOutlineColor(sf::Color::Black);
 			b->SetShape(rect);
-			b->SetPosition(x * activeLevel->tileSize.x+ outlineColorThickness, y * activeLevel->tileSize.y+ outlineColorThickness);
+			b->SetPosition(x * activeLevel->tileSize+ outlineColorThickness, y * activeLevel->tileSize+ outlineColorThickness);
 			auto clickFunction = [x,y]() {
-
-				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr)
+				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr || activeBrush == nullptr || activeLevel->GetTileAtCoord(x, y)->GetTileType() == activeBrush) {
 					return;
-
+				}
+				activeLevel->GetTileAtCoord(x, y)->SetTileType(activeBrush);
+				/*change tile type when clicking on it mouseButtonPressed
 				std::map<char, TileType*>::iterator it = TileType::tileTypes.find(activeLevel->GetTileAtCoord(x, y)->GetTileType()->tileId);
 				it++;
 				if (it != TileType::tileTypes.end()) {
 					activeLevel->GetTileAtCoord(x, y)->SetTileType(it->second);
 				}
 				else {
-					activeLevel->GetTileAtCoord(x, y)->SetTileType(TileType::tileTypes['0']);
-				}
+					activeLevel->GetTileAtCoord(x, y)->SetTileType(TileType::tileTypes[TileType::defaultTileTypeChar]);
+				}*/
 			};
+			b->AddButtonReleasedFunc(clickFunction);
 			b->AddButtonDownFunc(clickFunction);
+
+			auto mouseEnterFunction = [x, y]() {
+				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr || activeBrush == nullptr || activeLevel->GetTileAtCoord(x, y)->GetTileType() == activeBrush || !leftMouseButtonPressed) {
+					return;
+				}
+				activeLevel->GetTileAtCoord(x, y)->SetTileType(activeBrush);
+			};
+			b->AddMouseEnterFunc(mouseEnterFunction);
 			
 
-			buttonGrid[y][x] = b;
-			buttons.push_back(b);
+			//buttonGrid[y][x] = b;
+			//buttons.push_back(b);
+			views[ViewName::LevelEditor]->AddButton(b);
 		}
 	}
 }
 
-void DrawGrid() {
-	for (int y = 0; y < activeLevel->gridSize.y; y++) {
-		for (int x = 0; x < activeLevel->gridSize.x; x++) {
-			Tile* tile = activeLevel->GetTileAtCoord(x, y);
-
-			if (tile->active) {
-				if (&tile->GetSprite()) {
-					//std::cout << tile->GetSprite().getTexture()->getSize().x << std::endl;
-					renderWindow.draw(tile->GetSprite());
-				}
-					
-				
-			}
-				
-		}
-	}
-}
-
-void DrawButtons() {
-	for (Button* b : buttons) {
-		if(b->GetShapeObject() != nullptr)
-			renderWindow.draw(*b->GetShapeObject());
-	}
-}
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+#pragma endregion
