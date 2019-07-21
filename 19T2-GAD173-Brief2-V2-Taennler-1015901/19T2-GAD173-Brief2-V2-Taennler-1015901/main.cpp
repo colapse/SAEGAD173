@@ -21,7 +21,8 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
-
+#include <locale>
+#include <regex>
 /*
 TILE TYPES
 0 = Air
@@ -68,12 +69,12 @@ sf::Font generalFont;
 float windowWidth = 1000; // Width of the window
 float windowHeight = 600; // Height of the window
 
-std::string exeDir = "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\";//"C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
+std::string exeDir = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\";// "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
 std::string fontName = "Radiant.ttf"; // Font retrieved from https://www.dafont.com/
 std::string levelFolder = "levels";
 std::string levelExt = ".lvl";
 
-std::string texturePath = "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\textures\\";//"C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\textures\\"; //C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-Taennler-1015901\\19T2-GAD173-Brief2-Taennler-1015901\\x64\\Debug\\
+std::string texturePath = exeDir+"textures\\"; //"Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\textures\\";//
 
 std::vector<ViewName> activeViews;
 
@@ -91,6 +92,7 @@ float deltaTime = 0;
 
 #pragma endregion
 
+bool rightMouseButtonPressed = false;
 bool leftMouseButtonPressed = false;
 bool middleMouseButtonPressed = false;
 int main()
@@ -106,10 +108,11 @@ int main()
 	};
 
 	GameObjectType::gameObjectTypes = {
-		{'c',new GameObjectType('c', "Coin", texturePath + "CoinAnimated.gif")},
-		{'e',new GameObjectType('e', "Enemy Spawn", texturePath + "EnemyAlive.png")},
-		{'s',new GameObjectType('s', "Player Spawn", texturePath + "Door.png")},
-		{'t',new GameObjectType('t', "Player Exit", texturePath + "Player.png")}
+		{"0",new GameObjectType("0", "0", texturePath + "alpha.png")},
+		{"Coin",new GameObjectType("Coin", "Coin", texturePath + "CoinAnimated.gif")},
+		{"Enemy",new GameObjectType("Enemy", "Enemy Spawn", texturePath + "EnemyAlive.png")},
+		{"Player",new GameObjectType("Player", "Player Spawn", texturePath + "Player.png")},
+		{"Exit",new GameObjectType("Exit", "Player Exit", texturePath + "Door.png")}
 	};
 
 	LoadLevelsFromDirectory();
@@ -128,12 +131,19 @@ Level* LoadLevelFromFile(std::string file) {
 	Level * level = nullptr;
 	std::ifstream myfile(file);
 	std::vector<std::vector<char>> charGrid;
+	std::vector<std::vector<std::string>> gameObjectGrid;
 	std::string line;
+	std::locale loc;
+
+
 	if (myfile.is_open()) {
 		
 		int yOffset = -1;
 		int xSize = 0;
 		int ySize = 0;
+		bool gameObjects = false;
+		std::regex txt_regex_GO_identifier("([^\(]+)");//"/(.*?)[^\(]*/"
+		std::regex txt_regex_coordinates("\\(([0-9]+,[0-9]+)\\)");
 		while (std::getline(myfile, line)) {
 			if (line.length() == 0)
 				continue;
@@ -154,60 +164,84 @@ Level* LoadLevelFromFile(std::string file) {
 				yOffset = 0;
 
 				charGrid = std::vector<std::vector<char>>(ySize, std::vector<char>(xSize, TileType::defaultTileTypeChar));
+				gameObjectGrid = std::vector<std::vector<std::string>>(ySize, std::vector<std::string>(xSize, "0"));
 			}
 			else {
+				// End of Tile Grid -> Switch mode to GameObject parsing!
+				if (line.length() > 0 && std::isalpha(line[0], loc) && !gameObjects) {
+					gameObjects = true;
+					yOffset = 0;
+				}
+
 				if (yOffset >= ySize)
 					break;
-				//grid.push_back(std::vector<Brick*>());
+
 				int xOffset = 0;
-				std::vector<std::string> parts = SplitStringByDeli(line,',');
-				for (std::string part : parts) {
-					if (xOffset >= xSize)
-						break;
+				
+				
+				if (!gameObjects) {
+					for (int i = 0; i < line.length(); i++) {
 
-					char tileType;
-					// Read TileType
-					if (part.length() > 0)
-						tileType = part[0];
-					else
-						tileType = TileType::defaultTileTypeChar;
+						char tileType;
+						if (!TileType::IsValidTileTypeChar(line[i])) {
+							tileType = TileType::defaultTileTypeChar;
+						}
+						else {
+							tileType = line[i];
+						}
 
-					if (!TileType::IsValidTileTypeChar(tileType)) {
-						tileType = TileType::defaultTileTypeChar;
+						if (xOffset < xSize) {
+							charGrid[yOffset][xOffset] = tileType;
+							
+						}
+						xOffset++;
+					}
+				}
+				else {
+
+					// Match GameObject Identifier
+					std::smatch identifierMatches;
+					std::string identifier = "";
+					if (std::regex_search(line, identifierMatches, txt_regex_GO_identifier)) {
+						identifier = identifierMatches[0];
 					}
 
-					// Read settings (If there are any)
-					std::map<std::string, std::string> tileSettings;
-					unsigned first = (unsigned)part.find_first_of('[');
-					unsigned last = (unsigned)part.find_last_of(']');
-					if (first != std::string::npos && last != std::string::npos && first < part.size() && last < part.size()) {
-						std::string values = part.substr(first, last - first);
-						if (values.length() > 0) {
-							std::vector<std::string> settings = SplitStringByDeli(values, ',');
-							if (settings.size() > 0) {
-								for (std::string setting : settings) {
-									std::vector<std::string> settingParts = SplitStringByDeli(setting, '=');
+					bool isValidIdentifier = GameObjectType::IsValidGOTypeChar(identifier);
 
-									if (settingParts.size() >= 1) {
-										tileSettings.insert({ settingParts[0] , ((settingParts.size() >= 2) ? settingParts[1] : "")});
-									}
-								}
+					// Match GameObject coordinates
+					std::smatch coordinateMatches;
+					while (std::regex_search(line, coordinateMatches, txt_regex_coordinates)) {
+						if (coordinateMatches.size() >= 2 && isValidIdentifier) {
+							std::vector<std::string> coords = SplitStringByDeli(coordinateMatches[1], ',');
+							if (coords.size() >= 2) {
+								int x = std::stoi(coords[0]);
+								int y = std::stoi(coords[1]);
+								gameObjectGrid[y][x] = identifier;
 							}
 						}
+						line = coordinateMatches.suffix().str();
 					}
-
-					charGrid[yOffset][xOffset] = tileType;
-					//TODO Assign settings
-					xOffset++;
 				}
 
 				yOffset++;
 			}
 		}
 
-		if(yOffset > 1)
-		level = new Level(charGrid, Level::defaultTileSize);
-		level->existingFile = file;
+		if (yOffset > 1) {
+			level = new Level(charGrid, Level::defaultTileSize);
+			level->existingFile = file;
+
+			// Set Gameobjects
+			for (int y = 0; y < gameObjectGrid.size(); y++) {
+				for (int x = 0; x < gameObjectGrid[y].size(); x++) {
+					Tile* t = level->GetTileAtCoord(x, y);
+					if (t != nullptr && GameObjectType::IsValidGOTypeChar(gameObjectGrid[y][x])) {
+						t->SetGameObjectType(GameObjectType::gameObjectTypes[gameObjectGrid[y][x]]);
+					}
+				}
+			}
+		}
+		
 	}
 	myfile.close();
 
@@ -237,10 +271,36 @@ bool SaveLevel(Level * level) {
 
 	std::ofstream myfile(filename);
 	if (myfile.is_open()) {
+
+		std::string tileBitmap;
+		std::string gameobjectCoords;
+		std::map<std::string, std::vector<sf::Vector2i>> gameobjectsByType;
 		for (int y = 0; y < level->gridSize.y; y++) {
 			if (y == 0) {
 				myfile << std::to_string(level->gridSize.y) + ":" + std::to_string(level->gridSize.x) + "\n";
 			}
+			for (int x = 0; x < level->gridSize.x; x++) {
+				if (level->GetTileAtCoord(x, y) == nullptr || level->GetTileAtCoord(x, y)->GetTileType() == nullptr) {
+					tileBitmap += TileType::defaultTileTypeChar;
+				}
+				else {
+					tileBitmap += level->GetTileAtCoord(x, y)->GetTileType()->tileId;
+				}
+
+				if (level->GetTileAtCoord(x, y) != nullptr && level->GetTileAtCoord(x, y)->GetGameObjectType() != nullptr) {
+					if (gameobjectsByType.find(level->GetTileAtCoord(x, y)->GetGameObjectType()->gameObjectId) != gameobjectsByType.end()) {
+						gameobjectsByType[level->GetTileAtCoord(x, y)->GetGameObjectType()->gameObjectId].push_back(sf::Vector2i(x,y));
+					}
+					else {
+						gameobjectsByType.insert({ level->GetTileAtCoord(x, y)->GetGameObjectType()->gameObjectId , std::vector(1,sf::Vector2i(x,y)) });
+					}
+				}
+				/*
+				if (x < level->gridSize.x - 1)
+					tileBitmap += ",";*/
+			}
+			tileBitmap += "\n";
+			/*
 			for (int x = 0; x < level->gridSize.x; x++) {
 				if (level->GetTileAtCoord(x,y) == nullptr || level->GetTileAtCoord(x, y)->GetTileType() == nullptr) {
 					myfile << TileType::defaultTileTypeChar;
@@ -251,8 +311,23 @@ bool SaveLevel(Level * level) {
 				if (x < level->gridSize.x - 1)
 					myfile << ",";
 			}
-			myfile << "\n";
+			myfile << "\n";*/
 		}
+
+		if (gameobjectsByType.size() > 0) {
+			for (auto const& value : gameobjectsByType) {
+				gameobjectCoords += value.first;
+				if (value.second.size() > 0) {
+					for (sf::Vector2i coords : value.second) {
+						gameobjectCoords += "(" + std::to_string(coords.x) + "," + std::to_string(coords.y) + ")";
+					}
+				}
+				gameobjectCoords += "\n";
+			}
+		}
+
+		myfile << tileBitmap;
+		myfile << gameobjectCoords;
 		myfile.close();
 
 		if (createdNewFile) {
@@ -1027,6 +1102,8 @@ void WindowLifeCycle() {
 				break;
 			}
 			case sf::Event::MouseButtonPressed: {
+				if (event.mouseButton.button == sf::Mouse::Button::Right)
+					rightMouseButtonPressed = true;
 				if(event.mouseButton.button == sf::Mouse::Button::Left)
 					leftMouseButtonPressed = true;
 				if (event.mouseButton.button == sf::Mouse::Button::Middle)
@@ -1034,6 +1111,8 @@ void WindowLifeCycle() {
 				break;
 			}
 			case sf::Event::MouseButtonReleased: {
+				if (event.mouseButton.button == sf::Mouse::Button::Right)
+					rightMouseButtonPressed = false;
 				if (event.mouseButton.button == sf::Mouse::Button::Left)
 					leftMouseButtonPressed = false;
 				if (event.mouseButton.button == sf::Mouse::Button::Middle)
@@ -1175,12 +1254,12 @@ void HandleViewEvents(ViewName viewName, sf::Event e) {
 			}
 			break;
 		case sf::Event::MouseButtonPressed:
-			if (e.mouseButton.button == sf::Mouse::Button::Left && b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
+			if ((e.mouseButton.button == sf::Mouse::Button::Left || e.mouseButton.button == sf::Mouse::Button::Right) && b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				b->SetButtonPressed();
 			}
 			break;
 		case sf::Event::MouseButtonReleased:
-			if (e.mouseButton.button == sf::Mouse::Button::Left && b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
+			if ((e.mouseButton.button == sf::Mouse::Button::Left || e.mouseButton.button == sf::Mouse::Button::Right) && b->isActive && b->GetGlobalBounds().contains(renderWindow.mapPixelToCoords(mousePosInt))) {
 				b->SetButtonReleased();
 			}
 			break;
@@ -1231,13 +1310,19 @@ void CreateLevelEditorTileButtons() {
 			b->SetShape(rect);
 			b->SetPosition(x * activeLevel->tileSize+ outlineColorThickness, y * activeLevel->tileSize+ outlineColorThickness);
 			auto clickFunction = [x,y]() {
-				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr || (activeTileBrush == nullptr && activeGameObjectBrush == nullptr) || (activeTileBrush != nullptr && activeLevel->GetTileAtCoord(x, y)->GetTileType() == activeTileBrush) || (activeGameObjectBrush != nullptr &&activeLevel->GetTileAtCoord(x, y)->GetGameObjectType() == activeGameObjectBrush)) {
+				if (activeLevel->GetTileAtCoord(x, y)->GetTileType() == nullptr || (activeTileBrush == nullptr && activeGameObjectBrush == nullptr) || (activeTileBrush != nullptr && activeLevel->GetTileAtCoord(x, y)->GetTileType() == activeTileBrush) || (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) && activeGameObjectBrush != nullptr &&activeLevel->GetTileAtCoord(x, y)->GetGameObjectType() == activeGameObjectBrush)) {
 					return;
 				}
 				if(activeTileBrush != nullptr)
 					activeLevel->GetTileAtCoord(x, y)->SetTileType(activeTileBrush);
-				if (activeGameObjectBrush != nullptr)
-					activeLevel->GetTileAtCoord(x, y)->SetGameObjectType(activeGameObjectBrush);
+				if (activeGameObjectBrush != nullptr) {
+					if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+						activeLevel->GetTileAtCoord(x, y)->SetGameObjectType(GameObjectType::gameObjectTypes[GameObjectType::defaultGameObjectTypeChar]);
+					}
+					else {
+						activeLevel->GetTileAtCoord(x, y)->SetGameObjectType(activeGameObjectBrush);
+					}
+				}
 				/*change tile type when clicking on it mouseButtonPressed
 				std::map<char, TileType*>::iterator it = TileType::tileTypes.find(activeLevel->GetTileAtCoord(x, y)->GetTileType()->tileId);
 				it++;
@@ -1248,7 +1333,7 @@ void CreateLevelEditorTileButtons() {
 					activeLevel->GetTileAtCoord(x, y)->SetTileType(TileType::tileTypes[TileType::defaultTileTypeChar]);
 				}*/
 			};
-			b->AddButtonReleasedFunc(clickFunction);
+			//b->AddButtonReleasedFunc(clickFunction);
 			b->AddButtonDownFunc(clickFunction);
 
 			auto mouseEnterFunction = [x, y]() {

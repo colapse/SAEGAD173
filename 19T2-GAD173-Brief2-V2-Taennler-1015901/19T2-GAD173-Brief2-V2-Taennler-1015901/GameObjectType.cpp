@@ -2,11 +2,12 @@
 #include "GameObjectType.h"
 
 
-std::map<char, GameObjectType*> GameObjectType::gameObjectTypes;
-std::map<char, sf::Texture*> GameObjectType::gameObjectTypeTextures;
+std::map<std::string, GameObjectType*> GameObjectType::gameObjectTypes;
+std::map<std::string, sf::Texture*> GameObjectType::gameObjectTypeTextures;
+const std::string GameObjectType::defaultGameObjectTypeChar = "0";
 
-bool GameObjectType::IsValidGOTypeChar(char c) {
-	std::map<char, GameObjectType*>::iterator it = gameObjectTypes.find(c);
+bool GameObjectType::IsValidGOTypeChar(std::string c) {
+	std::map<std::string, GameObjectType*>::iterator it = gameObjectTypes.find(c);
 	if (it != gameObjectTypes.end())
 	{
 		return true;
@@ -14,15 +15,15 @@ bool GameObjectType::IsValidGOTypeChar(char c) {
 	return false;
 }
 
-GameObjectType::GameObjectType(char pGameObjectId, std::string pName, std::string gameObjectSprite) : gameObjectId(pGameObjectId), name(pName), spriteLoc(gameObjectSprite) {
+GameObjectType::GameObjectType(std::string pGameObjectId, std::string pName, std::string gameObjectSprite) : gameObjectId(pGameObjectId), name(pName), spriteLoc(gameObjectSprite) {
 
 }
 
-GameObjectType::GameObjectType(char pGameObjectId, std::string pName, std::string gameObjectSprite, int pMaxAllowedPerLevel) : gameObjectId(pGameObjectId), name(pName), spriteLoc(gameObjectSprite){
+GameObjectType::GameObjectType(std::string pGameObjectId, std::string pName, std::string gameObjectSprite, int pMaxAllowedPerLevel) : gameObjectId(pGameObjectId), name(pName), spriteLoc(gameObjectSprite){
 	maxAllowedPerLevel = pMaxAllowedPerLevel;
 }
 
-GameObjectType::GameObjectType() : gameObjectId(' '), name(" "), spriteLoc(" ")
+GameObjectType::GameObjectType() : gameObjectId(""), name(" "), spriteLoc(" ")
 {
 }
 

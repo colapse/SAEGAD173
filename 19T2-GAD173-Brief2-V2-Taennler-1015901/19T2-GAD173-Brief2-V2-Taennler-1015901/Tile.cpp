@@ -91,10 +91,10 @@ void Tile::SetTileType(TileType * tileType) {
 }
 
 void Tile::SetGameObjectType(GameObjectType * gameObjectType) {
-	if (gameObjectType == nullptr)
-		return;
-
 	this->gameObjectType = gameObjectType;
-	if(gameObjectType != nullptr && GameObjectType::gameObjectTypeTextures[gameObjectType->gameObjectId] != nullptr)
+
+	if (gameObjectType != nullptr && GameObjectType::gameObjectTypeTextures[gameObjectType->gameObjectId] != nullptr)
 		gameObjectSprite->setTexture(*GameObjectType::gameObjectTypeTextures[gameObjectType->gameObjectId]);
+	else
+		gameObjectSprite->setTexture(sf::Texture());
 }

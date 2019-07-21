@@ -12,17 +12,18 @@
 class GameObjectType
 {
 public:
-	static std::map<char, GameObjectType*> gameObjectTypes;
-	static std::map<char, sf::Texture*> gameObjectTypeTextures;
+	static std::map<std::string, GameObjectType*> gameObjectTypes;
+	static std::map<std::string, sf::Texture*> gameObjectTypeTextures;
+	static const std::string defaultGameObjectTypeChar;
 
-	static bool IsValidGOTypeChar(char c);
-	const char gameObjectId;
+	static bool IsValidGOTypeChar(std::string c);
+	const std::string gameObjectId;
 	const std::string name;
 	const std::string spriteLoc;
 	int maxAllowedPerLevel = -1; // -1 = unlimited
 
-	GameObjectType(char pGameObjectId, std::string pName, std::string gameObjectSprite);
-	GameObjectType(char pGameObjectId, std::string pName, std::string gameObjectSprite, int pMaxAllowedPerLevel);
+	GameObjectType(std::string pGameObjectId, std::string pName, std::string gameObjectSprite);
+	GameObjectType(std::string pGameObjectId, std::string pName, std::string gameObjectSprite, int pMaxAllowedPerLevel);
 	GameObjectType();
 	~GameObjectType();
 };

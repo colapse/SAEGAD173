@@ -105,13 +105,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>Z:\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lucat\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>Z:\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\lucat\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-audio-d.lib;sfml-network-d.lib;sfml-window-d.lib;sfml-system-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -144,7 +144,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>Z:\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\lucat\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -152,7 +152,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>Z:\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\lucat\Documents\gitlocal\SAEGAD173\CPPLibs\SFML-2.5.1_64Bit\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics.lib;sfml-audio.lib;sfml-network.lib;sfml-window.lib;sfml-system.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
