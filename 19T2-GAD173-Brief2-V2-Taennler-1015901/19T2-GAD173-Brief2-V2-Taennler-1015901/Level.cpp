@@ -98,6 +98,21 @@ void Level::SetTileTypeAtCoord(unsigned int x, unsigned int y, TileType * pTileT
 	UpdateTile(x, y);
 	//tileGrid[y][x]->SetTileType(pTileType);
 }
+
+int Level::GetGameObjectTypeOccurenceCount(GameObjectType* gameObjectType) {
+	int count = 0;
+	if (tileGrid.size() > 0) {
+		for (std::vector<Tile*> tArr : tileGrid) {
+			for (Tile* t : tArr) {
+				if (t->GetGameObjectType() == gameObjectType) {
+					count++;
+				}
+			}
+		}
+	}
+
+	return count;
+}
 /*
 char GetCharAtCoord(int x, int y) {
 	if (x >= gridSize.x || y >= gridSize.y)

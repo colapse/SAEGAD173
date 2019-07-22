@@ -37,5 +37,7 @@ public:
 	Tile* GetTileAtCoord(unsigned int x, unsigned int y);
 
 	void SetTileTypeAtCoord(unsigned int x, unsigned int y, TileType * pTileType);
+
+	int GetGameObjectTypeOccurenceCount(GameObjectType* gameObjectType);
 };
 

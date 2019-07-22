@@ -18,7 +18,7 @@ TileType::TileType(char pTileId, std::string pName, std::string tileSprite) : ti
 	
 }
 
-TileType::TileType(char pTileId, std::string pName, std::string tileSprite, bool pAllowGameObjects) : tileId(pTileId), name(pName), spriteLoc(tileSprite), allowGameObjects(pAllowGameObjects) {
+TileType::TileType(char pTileId, std::string pName, std::string tileSprite, bool pAllowGameObjects) : tileId(pTileId), name(pName), spriteLoc(tileSprite), allowGameObjects(pAllowGameObjects){
 	
 }
 

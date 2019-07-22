@@ -66,10 +66,10 @@ std::map<ViewName, View*> views;
 
 sf::RenderWindow renderWindow;
 sf::Font generalFont;
-float windowWidth = 1000; // Width of the window
-float windowHeight = 600; // Height of the window
+float windowWidth = 1000; // Width of the window 1000
+float windowHeight = 600; // Height of the window 600
 
-std::string exeDir = "C:\\Users\\lucat\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\";// "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
+std::string exeDir = "C:\\Users\\ltnnler\\Documents\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\";// "Z:\\Documents\\gitlocal\\SAEGAD173\\19T2-GAD173-Brief2-V2-Taennler-1015901\\19T2-GAD173-Brief2-V2-Taennler-1015901\\x64\\Debug\\"; // Directory of the exe file (Not a nice solution)
 std::string fontName = "Radiant.ttf"; // Font retrieved from https://www.dafont.com/
 std::string levelFolder = "levels";
 std::string levelExt = ".lvl";
@@ -111,8 +111,8 @@ int main()
 		{"0",new GameObjectType("0", "0", texturePath + "alpha.png")},
 		{"Coin",new GameObjectType("Coin", "Coin", texturePath + "CoinAnimated.gif")},
 		{"Enemy",new GameObjectType("Enemy", "Enemy Spawn", texturePath + "EnemyAlive.png")},
-		{"Player",new GameObjectType("Player", "Player Spawn", texturePath + "Player.png")},
-		{"Exit",new GameObjectType("Exit", "Player Exit", texturePath + "Door.png")}
+		{"Player",new GameObjectType("Player", "Player Spawn", texturePath + "Player.png", 1)},
+		{"Exit",new GameObjectType("Exit", "Player Exit", texturePath + "Door.png", 1)}
 	};
 
 	LoadLevelsFromDirectory();
@@ -522,7 +522,18 @@ void InitLevelEditorSideBarView() {
 	btnSaveLevel->AddMouseExitFunc(FnMExit_BTNSaveLevel); // Assign func to input
 	//// Create mouse click func
 	auto FnMReleased_BTNSaveLevel = []() {
-		if(activeLevel != nullptr && SaveLevel(activeLevel))
+		if (activeLevel == nullptr)
+			return;
+
+		// TODO Not nicely nor secure check.... 
+		if (activeLevel->GetGameObjectTypeOccurenceCount(GameObjectType::gameObjectTypes["Player"]) <= 0) {
+			std::cout << "===== WARNING: No Player in Level!" << std::endl;
+		}
+		if (activeLevel->GetGameObjectTypeOccurenceCount(GameObjectType::gameObjectTypes["Exit"]) <= 0) {
+			std::cout << "===== WARNING: No Player Exit in Level!" << std::endl;
+		}
+
+		if(SaveLevel(activeLevel))
 			std::cout << "Level saved! "+activeLevel->existingFile << std::endl;
 		else
 			std::cout << "Level couldn't be saved! " + activeLevel->existingFile << std::endl;
@@ -558,8 +569,9 @@ void InitLevelEditorSideBarView() {
 	};
 	btnResetLevel->AddButtonReleasedFunc(FnMReleased_BTNResetLevel); // Assign func to input
 
-	yOffset += btnResetLevel->GetGlobalBounds().height + 5;
-	editorBarView->AddButton(btnResetLevel);
+	// This button is currently not implemented!
+	//yOffset += btnResetLevel->GetGlobalBounds().height + 5;
+	//editorBarView->AddButton(btnResetLevel);
 
 	// Button Cancel Level
 	Button * btnCancelLevel = new Button();
@@ -1316,10 +1328,12 @@ void CreateLevelEditorTileButtons() {
 				if(activeTileBrush != nullptr)
 					activeLevel->GetTileAtCoord(x, y)->SetTileType(activeTileBrush);
 				if (activeGameObjectBrush != nullptr) {
+					int goOccurence = activeGameObjectBrush->maxAllowedPerLevel > 0?activeLevel->GetGameObjectTypeOccurenceCount(activeGameObjectBrush): -1;
+					
 					if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
 						activeLevel->GetTileAtCoord(x, y)->SetGameObjectType(GameObjectType::gameObjectTypes[GameObjectType::defaultGameObjectTypeChar]);
 					}
-					else {
+					else if(activeGameObjectBrush->maxAllowedPerLevel != 0 && (goOccurence < 0 || goOccurence < activeGameObjectBrush->maxAllowedPerLevel)) {
 						activeLevel->GetTileAtCoord(x, y)->SetGameObjectType(activeGameObjectBrush);
 					}
 				}

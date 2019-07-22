@@ -91,6 +91,9 @@ void Tile::SetTileType(TileType * tileType) {
 }
 
 void Tile::SetGameObjectType(GameObjectType * gameObjectType) {
+	if (this->tileType == nullptr || !this->tileType->allowGameObjects)
+		return;
+
 	this->gameObjectType = gameObjectType;
 
 	if (gameObjectType != nullptr && GameObjectType::gameObjectTypeTextures[gameObjectType->gameObjectId] != nullptr)

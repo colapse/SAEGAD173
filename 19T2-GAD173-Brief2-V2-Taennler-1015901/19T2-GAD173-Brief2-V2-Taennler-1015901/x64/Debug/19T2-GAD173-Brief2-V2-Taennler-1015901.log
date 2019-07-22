@@ -1,33 +1,30 @@
-﻿  GameObjectType.cpp
-  Level.cpp
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(36): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
+﻿  Level.cpp
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(36): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
           with
           [
               T=int
           ]
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(47): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(47): warning C4267: 'argument': conversion from 'size_t' to 'T', possible loss of data
           with
           [
               T=int
           ]
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(75): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(82): warning C4018: '>=': signed/unsigned mismatch
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(89): warning C4018: '>=': signed/unsigned mismatch
-  Tile.cpp
-  TileType.cpp
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(75): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(82): warning C4018: '>=': signed/unsigned mismatch
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\level.cpp(89): warning C4018: '>=': signed/unsigned mismatch
   main.cpp
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(145): warning C4129: '(': unrecognized character escape sequence
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(616): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(145): warning C4129: '(': unrecognized character escape sequence
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(628): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(675): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(687): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
           with
           [
               T=int
           ]
-c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(1140): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+c:\users\ltnnler\documents\saegad173\19t2-gad173-brief2-v2-taennler-1015901\19t2-gad173-brief2-v2-taennler-1015901\main.cpp(1152): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=float
@@ -37,4 +34,4 @@ c:\users\lucat\documents\gitlocal\saegad173\19t2-gad173-brief2-v2-taennler-10159
               T=int
           ]
   Generating Code...
-  19T2-GAD173-Brief2-V2-Taennler-1015901.vcxproj -> C:\Users\lucat\Documents\gitlocal\SAEGAD173\19T2-GAD173-Brief2-V2-Taennler-1015901\x64\Debug\19T2-GAD173-Brief2-V2-Taennler-1015901.exe
+  19T2-GAD173-Brief2-V2-Taennler-1015901.vcxproj -> C:\Users\ltnnler\Documents\SAEGAD173\19T2-GAD173-Brief2-V2-Taennler-1015901\x64\Debug\19T2-GAD173-Brief2-V2-Taennler-1015901.exe
