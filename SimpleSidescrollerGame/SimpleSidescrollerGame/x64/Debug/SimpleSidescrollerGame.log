@@ -1,0 +1,5 @@
+﻿  SimpleSidescrollerGame.cpp
+z:\documents\gitlocal\saegad173\simplesidescrollergame\simplesidescrollergame\simplesidescrollergame.cpp(20): warning C4305: 'initializing': truncation from 'double' to 'float'
+z:\documents\gitlocal\saegad173\simplesidescrollergame\simplesidescrollergame\simplesidescrollergame.cpp(21): warning C4305: 'initializing': truncation from 'double' to 'float'
+z:\documents\gitlocal\saegad173\simplesidescrollergame\simplesidescrollergame\simplesidescrollergame.cpp(160): warning C4305: '=': truncation from 'double' to 'float'
+  SimpleSidescrollerGame.vcxproj -> Z:\Documents\gitlocal\SAEGAD173\SimpleSidescrollerGame\x64\Debug\SimpleSidescrollerGame.exe
